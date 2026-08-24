@@ -42,11 +42,13 @@ Reliable inbound and outbound webhook infrastructure.
 
 ### Import Export
 
-Large-scale CSV/XLSX import and export processing.
+Large-scale CSV/XLSX import and export processing with streaming, queue processing, and progress tracking.
 
 **Package:** `magetech/laravel-import-export`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/import-export/README.md)
 
 ---
 

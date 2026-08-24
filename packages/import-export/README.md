@@ -19,8 +19,8 @@ Enterprise import/export engine for Laravel with streaming, queue processing, an
 
 ## Requirements
 
-- PHP 8.3+
-- Laravel 13.x
+- PHP 8.2+
+- Laravel 11.x, 12.x, or 13.x
 
 ## Installation
 
