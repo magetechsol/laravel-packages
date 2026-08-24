@@ -1,9 +1,10 @@
 {
     "name": "magetech/laravel-import-export",
-    "description": "Large-scale CSV/XLSX import and export processing for Laravel.",
-    "keywords": ["laravel", "import", "export", "csv", "xlsx", "excel"],
+    "description": "Enterprise import/export engine for Laravel with streaming, queue processing, and progress tracking.",
+    "keywords": ["laravel", "import", "export", "csv", "xlsx", "json", "xml", "queue", "enterprise"],
     "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/import-export",
     "license": "MIT",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "MageTech Solutions",
@@ -12,11 +13,20 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0|^13.0"
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/queue": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "openspout/openspout": "^4.0"
     },
     "require-dev": {
+        "laravel/pint": "^1.0|^2.0",
+        "larastan/larastan": "^2.0|^3.0",
+        "mockery/mockery": "^1.6",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
-        "phpunit/phpunit": "^10.0|^11.0|^12.0"
+        "pestphp/pest": "^2.0|^3.0",
+        "phpunit/phpunit": "^10.0|^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -32,11 +42,25 @@
         "laravel": {
             "providers": [
                 "MageTech\\ImportExport\\ImportExportServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Import": "MageTech\\ImportExport\\Support\\Facades\\Import",
+                "Export": "MageTech\\ImportExport\\Support\\Facades\\Export"
+            }
         }
     },
+    "scripts": {
+        "test": "pest",
+        "test-coverage": "pest --coverage",
+        "format": "pint",
+        "format-test": "pint --test",
+        "analyse": "phpstan analyse"
+    },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true

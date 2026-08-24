@@ -1,0 +1,5 @@
+[
+    {"name": "Widget A", "sku": "WGT-001", "price": 29.99, "stock_quantity": 100},
+    {"name": "Widget B", "sku": "WGT-002", "price": 39.99, "stock_quantity": 75},
+    {"name": "Gadget X", "sku": "GDG-001", "price": 49.99, "stock_quantity": 50}
+]

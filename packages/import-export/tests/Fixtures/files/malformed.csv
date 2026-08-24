@@ -1,0 +1,4 @@
+name,sku,price,stock_quantity
+"Widget with ""quotes""",WGT-Q01,10.00,10
+Widget with newline,WGT-N01,20.00,20
+"Normal Widget",WGT-N02,30.00,30

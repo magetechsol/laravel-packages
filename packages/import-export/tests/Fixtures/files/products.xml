@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+    <product>
+        <name>Widget A</name>
+        <sku>WGT-001</sku>
+        <price>29.99</price>
+        <stock_quantity>100</stock_quantity>
+    </product>
+    <product>
+        <name>Widget B</name>
+        <sku>WGT-002</sku>
+        <price>39.99</price>
+        <stock_quantity>75</stock_quantity>
+    </product>
+    <product>
+        <name>Gadget X</name>
+        <sku>GDG-001</sku>
+        <price>49.99</price>
+        <stock_quantity>50</stock_quantity>
+    </product>
+</products>
