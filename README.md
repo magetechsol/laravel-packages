@@ -24,7 +24,9 @@ Standardized enterprise API responses, errors and API architecture.
 
 **Package:** `magetech/laravel-api-toolkit`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/api-toolkit/README.md)
 
 ---
 
