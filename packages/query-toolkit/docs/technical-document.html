@@ -1,0 +1,473 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTS Laravel Query Toolkit - Technical Documentation</title>
+    <style>
+        :root{--bg-primary:#0f0f1a;--bg-secondary:#1a1a2e;--bg-tertiary:#16213e;--bg-card:#1e1e3a;--text-primary:#e0e0e0;--text-secondary:#a0a0b0;--text-muted:#6c6c80;--accent-primary:#7c3aed;--accent-secondary:#3b82f6;--accent-green:#10b981;--accent-orange:#f59e0b;--accent-red:#ef4444;--border-color:#2d2d4a;--code-bg:#0d1117;--code-text:#c9d1d9}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7}
+        .header{background:linear-gradient(135deg,var(--bg-secondary),var(--bg-tertiary));border-bottom:1px solid var(--border-color);padding:1rem 2rem;position:sticky;top:0;z-index:1000;backdrop-filter:blur(10px)}
+        .header-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+        .logo{font-size:1.5rem;font-weight:700;color:var(--accent-primary)}
+        .logo span{color:var(--accent-secondary)}
+        .nav-links{display:flex;gap:1.5rem}
+        .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+        .nav-links a:hover{color:var(--accent-primary)}
+        .container{max-width:1400px;margin:0 auto;display:flex;gap:2rem;padding:2rem}
+        .sidebar{width:280px;flex-shrink:0;position:sticky;top:80px;height:calc(100vh - 100px);overflow-y:auto;padding-right:1rem}
+        .sidebar::-webkit-scrollbar{width:4px}
+        .sidebar::-webkit-scrollbar-thumb{background:var(--accent-primary);border-radius:2px}
+        .sidebar-title{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:1rem}
+        .sidebar-nav a{display:block;padding:0.5rem 1rem;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;border-left:2px solid transparent;transition:all 0.2s}
+        .sidebar-nav a:hover,.sidebar-nav a.active{color:var(--accent-primary);border-left-color:var(--accent-primary);background:rgba(124,58,237,0.1)}
+        .sidebar-nav .sub{padding-left:2rem;font-size:0.85rem}
+        .main-content{flex:1;min-width:0}
+        .section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--border-color)}
+        h1{font-size:2.5rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        h2{font-size:1.8rem;margin-bottom:1rem;color:var(--accent-secondary)}
+        h3{font-size:1.3rem;margin:1.5rem 0 0.75rem;color:var(--accent-primary)}
+        p{margin-bottom:1rem;color:var(--text-secondary)}
+        .code-block{background:var(--code-bg);border:1px solid var(--border-color);border-radius:8px;margin:1rem 0;overflow:hidden}
+        .code-header{background:var(--bg-tertiary);padding:0.5rem 1rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color)}
+        .code-lang{font-size:0.8rem;color:var(--accent-green);text-transform:uppercase}
+        .copy-btn{background:var(--accent-primary);color:white;border:none;padding:0.25rem 0.75rem;border-radius:4px;cursor:pointer;font-size:0.75rem;transition:background 0.2s}
+        .copy-btn:hover{background:var(--accent-secondary)}
+        pre{padding:1rem;overflow-x:auto;font-family:'Fira Code','Cascadia Code','JetBrains Mono',monospace;font-size:0.9rem;line-height:1.5}
+        .inline-code{background:var(--code-bg);padding:0.15rem 0.4rem;border-radius:4px;font-family:monospace;font-size:0.9em;color:var(--accent-green)}
+        .table-wrapper{overflow-x:auto;margin:1rem 0}
+        table{width:100%;border-collapse:collapse;background:var(--bg-card);border-radius:8px;overflow:hidden}
+        th{background:var(--bg-tertiary);padding:1rem;text-align:left;font-weight:600;color:var(--accent-primary);border-bottom:2px solid var(--border-color)}
+        td{padding:0.75rem 1rem;border-bottom:1px solid var(--border-color);color:var(--text-secondary)}
+        tr:hover td{background:rgba(124,58,237,0.05)}
+        .badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600}
+        .badge-primary{background:var(--accent-primary);color:white}
+        .badge-green{background:var(--accent-green);color:white}
+        .alert{padding:1rem 1.5rem;border-radius:8px;margin:1rem 0;border-left:4px solid}
+        .alert-info{background:rgba(59,130,246,0.1);border-color:var(--accent-secondary);color:var(--accent-secondary)}
+        .alert-warning{background:rgba(245,158,11,0.1);border-color:var(--accent-orange);color:var(--accent-orange)}
+        .method-sig{background:var(--code-bg);padding:0.75rem 1rem;border-radius:6px;font-family:monospace;font-size:0.85rem;margin:0.5rem 0;border-left:3px solid var(--accent-primary)}
+        .keyword{color:#ff7b72}.string{color:#a5d6ff}.comment{color:#8b949e;font-style:italic}.function{color:#d2a8ff}.variable{color:#ffa657}.type{color:var(--accent-green)}.number{color:var(--accent-orange)}
+        ul,ol{margin:1rem 0;padding-left:2rem;color:var(--text-secondary)}
+        li{margin-bottom:0.5rem}
+        .architecture-diagram{background:var(--code-bg);border:1px solid var(--border-color);border-radius:8px;padding:2rem;font-family:monospace;font-size:0.85rem;overflow-x:auto;white-space:pre;line-height:1.4}
+        .collapsible{cursor:pointer;user-select:none}
+        .collapsible::before{content:'▸';display:inline-block;margin-right:0.5rem;transition:transform 0.2s}
+        .collapsible.active::before{transform:rotate(90deg)}
+        .collapsible-content{display:none;padding:1rem;background:var(--bg-card);border-radius:8px;margin-top:0.5rem}
+        .collapsible-content.active{display:block}
+        .back-to-top{position:fixed;bottom:2rem;right:2rem;background:var(--accent-primary);color:white;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.3s;z-index:999}
+        .back-to-top.visible{opacity:1}
+        ::-webkit-scrollbar{width:8px;height:8px}
+        ::-webkit-scrollbar-track{background:var(--bg-primary)}
+        ::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:var(--accent-primary)}
+        @media(max-width:1024px){.container{flex-direction:column}.sidebar{width:100%;position:static;height:auto;display:flex;flex-wrap:wrap;gap:0.5rem}.sidebar-nav a{padding:0.5rem 1rem;border-left:none;border-bottom:2px solid transparent}}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-content">
+        <div class="logo">MTS <span>Query Toolkit</span></div>
+        <nav class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#filters">Filters</a>
+            <a href="#sorting">Sorting</a>
+            <a href="#search">Search</a>
+            <a href="#configuration">Config</a>
+            <a href="#api">API</a>
+        </nav>
+    </div>
+</header>
+<div class="container">
+<aside class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <nav class="sidebar-nav">
+        <a href="#overview">Overview</a>
+        <a href="#installation" class="sub">Installation</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#core-classes" class="sub">Core Classes</a>
+        <a href="#traits" class="sub">Traits</a>
+        <a href="#filters">Filter System</a>
+        <a href="#filter-types" class="sub">Filter Types</a>
+        <a href="#allowed-filter" class="sub">AllowedFilter</a>
+        <a href="#sorting">Sorting</a>
+        <a href="#search">Search</a>
+        <a href="#includes">Includes</a>
+        <a href="#pagination">Pagination</a>
+        <a href="#configuration">Configuration</a>
+        <a href="#security">Security</a>
+        <a href="#exceptions">Exceptions</a>
+        <a href="#middleware">Middleware</a>
+        <a href="#commands">Commands</a>
+        <a href="#api">API Reference</a>
+    </nav>
+</aside>
+<main class="main-content">
+<!-- Overview Section -->
+<section id="overview" class="section">
+    <h1>MTS Laravel Query Toolkit</h1>
+    <p><span class="badge badge-primary">v1.0.0</span> <span class="badge badge-green">MTS License</span></p>
+    <p>Enterprise-grade query builder for Laravel APIs with filtering, sorting, searching, pagination, and relationship support.</p>
+    <div class="alert alert-info">
+        <strong>Package:</strong> <span class="inline-code">magetech/laravel-query-toolkit</span><br>
+        <strong>Namespace:</strong> <span class="inline-code">MageTech\QueryToolkit</span>
+    </div>
+    <h3>Requirements</h3>
+    <ul>
+        <li>PHP 8.3+</li>
+        <li>Laravel 12.x or 13.x</li>
+        <li>MySQL 8+, PostgreSQL 15+, or SQLite</li>
+    </ul>
+    <h3>Installation</h3>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>composer require magetech/laravel-query-toolkit
+php artisan mts:query:install</code></pre>
+    </div>
+</section>
+
+<!-- Architecture Section -->
+<section id="architecture" class="section">
+    <h2>Architecture</h2>
+    <p>The package uses a modular, trait-based architecture with a whitelist-only security model.</p>
+    
+    <div id="core-classes">
+        <h3>Core Classes</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Class</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="inline-code">QueryBuilder</span></td><td>Main orchestrator using 7 traits</td></tr>
+                    <tr><td><span class="inline-code">QueryBuilderRequest</span></td><td>Parses HTTP request parameters</td></tr>
+                    <tr><td><span class="inline-code">AllowedFilter</span></td><td>Factory with 16 static methods for typed filters</td></tr>
+                    <tr><td><span class="inline-code">AllowedSort</span></td><td>Factory for typed sorts</td></tr>
+                    <tr><td><span class="inline-code">AllowedInclude</span></td><td>Factory for typed includes</td></tr>
+                    <tr><td><span class="inline-code">QueryToolkitServiceProvider</span></td><td>Service provider with auto-discovery</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="traits">
+        <h3>Traits (Concerns)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Trait</th><th>Responsibility</th><th>Key Methods</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="inline-code">FiltersQuery</span></td><td>Filter whitelist management</td><td>allowedFilters(), applyFilters()</td></tr>
+                    <tr><td><span class="inline-code">SortsQuery</span></td><td>Sort whitelist management</td><td>allowedSorts(), applySorts()</td></tr>
+                    <tr><td><span class="inline-code">AddsIncludesToQuery</span></td><td>Include whitelist management</td><td>allowedIncludes(), applyIncludes()</td></tr>
+                    <tr><td><span class="inline-code">AddsFieldsToQuery</span></td><td>Field selection</td><td>allowedFields(), applyFields()</td></tr>
+                    <tr><td><span class="inline-code">PerformsSearches</span></td><td>Search driver management</td><td>searchable(), searchUsing()</td></tr>
+                    <tr><td><span class="inline-code">PaginatesQuery</span></td><td>Pagination support</td><td>perPage(), page(), useCursorPagination()</td></tr>
+                    <tr><td><span class="inline-code">Macroable</span></td><td>Runtime extensibility</td><td>macro(), hasMacro(), getMacro()</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Filter System Section -->
+<section id="filters" class="section">
+    <h2>Filter System</h2>
+    <p>13 filter types with whitelist-only security model.</p>
+    
+    <div id="filter-types">
+        <h3>Filter Types</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Filter</th><th>Type</th><th>Purpose</th><th>SQL Generated</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="inline-code">ExactFilter</span></td><td><span class="badge badge-green">exact</span></td><td>Exact match, whereIn, whereNull</td><td><span class="inline-code">WHERE col = ?</span></td></tr>
+                    <tr><td><span class="inline-code">PartialFilter</span></td><td><span class="badge badge-green">partial</span></td><td>LIKE match with wildcards</td><td><span class="inline-code">WHERE col LIKE %?%</span></td></tr>
+                    <tr><td><span class="inline-code">BooleanFilter</span></td><td><span class="badge badge-green">boolean</span></td><td>Boolean validation then exact match</td><td><span class="inline-code">WHERE col = 1|0</span></td></tr>
+                    <tr><td><span class="inline-code">NumericFilter</span></td><td><span class="badge badge-green">numeric</span></td><td>Numeric comparison with operator</td><td><span class="inline-code">WHERE col >= ?</span></td></tr>
+                    <tr><td><span class="inline-code">DateFilter</span></td><td><span class="badge badge-green">date</span></td><td>Date comparison via Carbon</td><td><span class="inline-code">WHERE DATE(col) >= ?</span></td></tr>
+                    <tr><td><span class="inline-code">DateRangeFilter</span></td><td><span class="badge badge-green">date_range</span></td><td>Date range with from/to</td><td><span class="inline-code">WHERE DATE(col) BETWEEN ? AND ?</span></td></tr>
+                    <tr><td><span class="inline-code">EnumFilter</span></td><td><span class="badge badge-green">enum</span></td><td>Validates against allowed values</td><td><span class="inline-code">WHERE col IN (?, ?, ?)</span></td></tr>
+                    <tr><td><span class="inline-code">ScopeFilter</span></td><td><span class="badge badge-green">scope</span></td><td>Calls Eloquent scope method</td><td><span class="inline-code">Model::scopeName()</span></td></tr>
+                    <tr><td><span class="inline-code">CallbackFilter</span></td><td><span class="badge badge-green">callback</span></td><td>Executes custom Closure</td><td>Custom</td></tr>
+                    <tr><td><span class="inline-code">RelationshipFilter</span></td><td><span class="badge badge-green">relationship</span></td><td>Filters by related model</td><td><span class="inline-code">WHERE HAS relation</span></td></tr>
+                    <tr><td><span class="inline-code">NestedRelationshipFilter</span></td><td><span class="badge badge-green">nested</span></td><td>Filters through multiple relations</td><td><span class="inline-code">WHERE HAS a.b.c</span></td></tr>
+                    <tr><td><span class="inline-code">JSONFilter</span></td><td><span class="badge badge-green">json</span></td><td>Filters JSON columns</td><td><span class="inline-code">col->'$.key' = ?</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="allowed-filter">
+        <h3>AllowedFilter Factory Methods</h3>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">exact</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">partial</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">boolean</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">numeric</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>, <span class="type">string</span> $operator = <span class="string">'='</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">gt</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">lt</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">gte</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">lte</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">date</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>, <span class="type">string</span> $operator = <span class="string">'='</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">dateRange</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">enum</span>(<span class="type">string</span> $property, <span class="type">array</span> $allowedValues, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">scope</span>(<span class="type">string</span> $property, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">callback</span>(<span class="type">string</span> $property, <span class="type">Closure</span> $callback, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">relationship</span>(<span class="type">string</span> $relation, <span class="type">string</span> $property, <span class="type">BaseFilter</span> $filter)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">nestedRelationship</span>(<span class="type">array</span> $relations, <span class="type">string</span> $property, <span class="type">BaseFilter</span> $filter)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">json</span>(<span class="type">string</span> $property, <span class="type">string</span> $jsonPath = <span class="string">'$'</span>, <span class="type">string</span> $operator = <span class="string">'='</span>, <span class="type">?string</span> $alias = <span class="keyword">null</span>)</div>
+        <div class="method-sig"><span class="type">AllowedFilter</span>::<span class="function">custom</span>(<span class="type">string</span> $property, <span class="type">FilterInterface</span> $filter)</div>
+    </div>
+    
+    <div id="filter-examples">
+        <h3>Filter Examples</h3>
+        <div class="code-block">
+            <div class="code-header"><span class="code-lang">php - Exact Filter</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code><span class="comment">// URL: /api/users?filter[name]=John</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedFilters</span>([
+        <span class="type">AllowedFilter</span>::<span class="function">exact</span>(<span class="string">'name'</span>),
+    ])
+    -><span class="function">get</span>();</code></pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header"><span class="code-lang">php - Numeric Filter</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code><span class="comment">// URL: /api/products?filter[price][gte]=1000&filter[price][lte]=5000</span>
+<span class="variable">$products</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">Product</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedFilters</span>([
+        <span class="type">AllowedFilter</span>::<span class="function">gte</span>(<span class="string">'price'</span>),
+        <span class="type">AllowedFilter</span>::<span class="function">lte</span>(<span class="string">'price'</span>),
+    ])
+    -><span class="function">get</span>();</code></pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header"><span class="code-lang">php - Relationship Filter</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code><span class="comment">// URL: /api/users?filter[posts][is_published]=true</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedFilters</span>([
+        <span class="type">AllowedFilter</span>::<span class="function">relationship</span>(
+            <span class="string">'posts'</span>,
+            <span class="string">'is_published'</span>,
+            <span class="type">BooleanFilter</span>::<span class="function">make</span>(<span class="string">'is_published'</span>)
+        ),
+    ])
+    -><span class="function">get</span>();</code></pre>
+        </div>
+    </div>
+</section>
+<!-- Sorting Section -->
+<section id="sorting" class="section">
+    <h2>Sorting</h2>
+    <p>Supports single and multi-field sorting with direction control. Use <span class="inline-code">-</span> prefix for descending.</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment">// URL: /api/users?sort=-name,created_at</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedSorts</span>([<span class="string">'name'</span>, <span class="string">'created_at'</span>])
+    -><span class="function">get</span>();
+
+<span class="comment">// Generates: ORDER BY name DESC, created_at ASC</span>
+
+<span class="comment">// Apply default sort</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedSorts</span>([<span class="string">'name'</span>, <span class="string">'created_at'</span>])
+    -><span class="function">applyDefaultSort</span>(<span class="string">'created_at'</span>, <span class="string">'desc'</span>)
+    -><span class="function">get</span>();</code></pre>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section id="search" class="section">
+    <h2>Search</h2>
+    <p>Two search drivers: LIKE (default) and Full-Text (MySQL/PostgreSQL).</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php - LIKE Search</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment">// URL: /api/users?search=john</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">searchable</span>([<span class="string">'name'</span>, <span class="string">'email'</span>])
+    -><span class="function">get</span>();
+
+<span class="comment">// Generates: WHERE (name LIKE '%john%' OR email LIKE '%john%')</span></code></pre>
+    </div>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php - Full-Text Search</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="variable">$products</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">Product</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">searchable</span>(
+        [<span class="string">'name'</span>, <span class="string">'description'</span>],
+        <span class="type">SearchDriver</span>::<span class="variable">FullText</span>
+    )
+    -><span class="function">get</span>();</code></pre>
+    </div>
+</section>
+
+<!-- Includes Section -->
+<section id="includes" class="section">
+    <h2>Relationship Includes</h2>
+    <p>Supports eager loading, count includes, and custom includes.</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment">// URL: /api/users?include=posts,roles</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedIncludes</span>([<span class="string">'posts'</span>, <span class="string">'roles'</span>])
+    -><span class="function">get</span>();
+
+<span class="comment">// Count includes</span>
+<span class="variable">$users</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedIncludes</span>([
+        <span class="type">AllowedInclude</span>::<span class="function">key</span>(<span class="string">'posts'</span>),
+        <span class="type">AllowedInclude</span>::<span class="function">count</span>(<span class="string">'posts_count'</span>, <span class="string">'posts'</span>),
+    ])
+    -><span class="function">get</span>();</code></pre>
+    </div>
+</section>
+
+<!-- Pagination Section -->
+<section id="pagination" class="section">
+    <h2>Pagination</h2>
+    <p>Standard and cursor pagination with configurable limits.</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment">// URL: /api/users?page=2&per_page=25</span>
+<span class="variable">$result</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">allowedFilters</span>([<span class="string">'name'</span>, <span class="string">'status'</span>])
+    -><span class="function">allowedSorts</span>([<span class="string">'name'</span>, <span class="string">'created_at'</span>])
+    -><span class="function">paginate</span>();
+
+<span class="comment">// Cursor pagination</span>
+<span class="variable">$result</span> = <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+    -><span class="function">useCursorPagination</span>(<span class="string">'id'</span>)
+    -><span class="function">paginate</span>();</code></pre>
+    </div>
+</section>
+
+<!-- Configuration Section -->
+<section id="configuration" class="section">
+    <h2>Configuration</h2>
+    <p>Publish the config file:</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>php artisan vendor:publish --provider="MageTech\QueryToolkit\QueryToolkitServiceProvider" --tag=mts-query-config</code></pre>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="inline-code">parameters.filter</span></td><td>'filter'</td><td>URL parameter name for filters</td></tr>
+                <tr><td><span class="inline-code">parameters.sort</span></td><td>'sort'</td><td>URL parameter name for sorting</td></tr>
+                <tr><td><span class="inline-code">parameters.include</span></td><td>'include'</td><td>URL parameter name for includes</td></tr>
+                <tr><td><span class="inline-code">default_per_page</span></td><td>15</td><td>Default items per page</td></tr>
+                <tr><td><span class="inline-code">max_per_page</span></td><td>100</td><td>Maximum allowed items per page</td></tr>
+                <tr><td><span class="inline-code">ignore_invalid_filters</span></td><td>false</td><td>Silently ignore invalid filters</td></tr>
+                <tr><td><span class="inline-code">security.max_filters_per_request</span></td><td>20</td><td>Maximum filters per request</td></tr>
+                <tr><td><span class="inline-code">security.max_sorts_per_request</span></td><td>5</td><td>Maximum sort fields per request</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Security Section -->
+<section id="security" class="section">
+    <h2>Security</h2>
+    <div class="alert alert-warning">
+        <strong>Security Model:</strong> All filters, sorts, includes, and fields must be explicitly whitelisted.
+    </div>
+    <h3>Security Features</h3>
+    <ul>
+        <li><strong>Whitelist-only filtering:</strong> Only explicitly allowed filters can be executed</li>
+        <li><strong>SQL injection prevention:</strong> All queries use parameterized statements</li>
+        <li><strong>Relationship validation:</strong> Related models must be in allowed list</li>
+        <li><strong>Pagination limits:</strong> Max page size prevents abuse</li>
+        <li><strong>Query complexity limits:</strong> Max filters/sorts/includes per request</li>
+    </ul>
+</section>
+
+<!-- Exceptions Section -->
+<section id="exceptions" class="section">
+    <h2>Exception Handling</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Exception</th><th>Factory Method</th><th>When Thrown</th></tr></thead>
+            <tbody>
+                <tr><td><span class="inline-code">InvalidFilterQuery</span></td><td>disallowedFilter()</td><td>Filter not in allowed list</td></tr>
+                <tr><td><span class="inline-code">InvalidFilterQuery</span></td><td>disallowedSort()</td><td>Sort field not in allowed list</td></tr>
+                <tr><td><span class="inline-code">InvalidFilterQuery</span></td><td>disallowedInclude()</td><td>Include not in allowed list</td></tr>
+                <tr><td><span class="inline-code">PaginationException</span></td><td>perPageExceedsMaximum()</td><td>per_page exceeds max_per_page</td></tr>
+                <tr><td><span class="inline-code">InvalidSearchQuery</span></td><td>searchNotEnabled()</td><td>Search used without searchable()</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Middleware Section -->
+<section id="middleware" class="section">
+    <h2>Middleware</h2>
+    <p>Add the middleware to validate query parameters:</p>
+    <div class="code-block">
+        <div class="code-header"><span class="code-lang">php - app/Http/Kernel.php</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="keyword">protected</span> <span class="variable">$middlewareGroups</span> = [
+    <span class="string">'api'</span> => [
+        <span class="type">\MageTech\QueryToolkit\Middleware\ValidateQueryParameters</span>::<span class="keyword">class</span>,
+    ],
+];</code></pre>
+    </div>
+</section>
+
+<!-- Commands Section -->
+<section id="commands" class="section">
+    <h2>Artisan Commands</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Command</th><th>Description</th><th>Output</th></tr></thead>
+            <tbody>
+                <tr><td><span class="inline-code">mts:query:install</span></td><td>Publishes config file</td><td>config/mts-query.php</td></tr>
+                <tr><td><span class="inline-code">mts:query:make-filter {name}</span></td><td>Creates custom filter class</td><td>app/QueryFilters/{name}.php</td></tr>
+                <tr><td><span class="inline-code">mts:query:make-sort {name}</span></td><td>Creates custom sort class</td><td>app/QuerySorts/{name}.php</td></tr>
+                <tr><td><span class="inline-code">mts:query:make-search {name}</span></td><td>Creates custom search class</td><td>app/QuerySearches/{name}.php</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- API Reference Section -->
+<section id="api" class="section">
+    <h2>API Reference</h2>
+    <h3>QueryBuilder Methods</h3>
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="inline-code">for(string $modelClass, ?Request $request, array $options)</span></td><td>static</td><td>Create from model class</td></tr>
+                <tr><td><span class="inline-code">fromQuery(Builder $query, ?Request $request, array $options)</span></td><td>static</td><td>Create from existing Builder</td></tr>
+                <tr><td><span class="inline-code">allowedFilters(array $filters)</span></td><td>static</td><td>Register allowed filters</td></tr>
+                <tr><td><span class="inline-code">allowedSorts(array $sorts)</span></td><td>static</td><td>Register allowed sorts</td></tr>
+                <tr><td><span class="inline-code">allowedIncludes(array $includes)</span></td><td>static</td><td>Register allowed includes</td></tr>
+                <tr><td><span class="inline-code">allowedFields(array $fields)</span></td><td>static</td><td>Register allowed fields</td></tr>
+                <tr><td><span class="inline-code">searchable(array $fields, SearchDriver $driver)</span></td><td>static</td><td>Enable search on fields</td></tr>
+                <tr><td><span class="inline-code">perPage(int $perPage)</span></td><td>static</td><td>Set items per page</td></tr>
+                <tr><td><span class="inline-code">page(int $page)</span></td><td>static</td><td>Set current page</td></tr>
+                <tr><td><span class="inline-code">get(array $columns)</span></td><td>Collection</td><td>Execute query and get results</td></tr>
+                <tr><td><span class="inline-code">paginate()</span></td><td>PaginationResult</td><td>Paginate results</td></tr>
+                <tr><td><span class="inline-code">count()</span></td><td>int</td><td>Count results</td></tr>
+                <tr><td><span class="inline-code">getQuery()</span></td><td>Builder</td><td>Get underlying Eloquent Builder</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<footer style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.9rem;">
+    <p>MTS Laravel Query Toolkit v1.0.0 | MageTech Solutions | MTS License</p>
+</footer>
+</main>
+</div>
+
+<div class="back-to-top" onclick="scrollToTop()">&#8593;</div>
+
+<script>
+function copyCode(btn){const c=btn.closest('.code-block').querySelector('code');navigator.clipboard.writeText(c.textContent);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000)}
+function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'})}
+window.addEventListener('scroll',()=>{const b=document.querySelector('.back-to-top');if(window.scrollY>500)b.classList.add('visible');else b.classList.remove('visible')});
+const sections=document.querySelectorAll('.section'),navLinks=document.querySelectorAll('.sidebar-nav a');
+window.addEventListener('scroll',()=>{let current='';sections.forEach(s=>{if(scrollY>=s.offsetTop-200)current=s.getAttribute('id')});navLinks.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+current)l.classList.add('active')})});
+</script>
+</body>
+</html>

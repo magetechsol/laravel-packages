@@ -1,0 +1,43 @@
+{
+    "name": "magetech/laravel-audit-pro",
+    "description": "Enterprise audit trail and compliance logging for Laravel.",
+    "keywords": ["laravel", "audit", "compliance", "logging", "security"],
+    "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/audit-pro",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "MageTech Solutions",
+            "email": "dev@magetechsolutions.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^10.0|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MageTech\\AuditPro\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MageTech\\AuditPro\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MageTech\\AuditPro\\AuditProServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

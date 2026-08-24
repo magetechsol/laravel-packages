@@ -1,0 +1,541 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTS Laravel Query Toolkit - Easy API Query Builder</title>
+    <style>
+        :root{--bg-primary:#0a0a1a;--bg-secondary:#12122a;--bg-tertiary:#1a1a3a;--bg-card:#1e1e40;--bg-card-hover:#252550;--text-primary:#f0f0ff;--text-secondary:#b0b0cc;--text-muted:#707090;--accent-purple:#8b5cf6;--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-green:#10b981;--accent-orange:#f59e0b;--accent-red:#ef4444;--accent-pink:#ec4899;--border-color:#2a2a50;--gradient-1:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--gradient-2:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);--gradient-3:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+        
+        /* Hero Section */
+        .hero{background:linear-gradient(135deg,var(--bg-secondary) 0%,var(--bg-tertiary) 50%,var(--bg-secondary) 100%);padding:6rem 2rem;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 50%);animation:pulse 8s ease-in-out infinite}
+        @keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.1);opacity:0.8}}
+        .hero-content{max-width:900px;margin:0 auto;position:relative;z-index:1}
+        .hero h1{font-size:3.5rem;margin-bottom:1rem;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+        .hero .tagline{font-size:1.4rem;color:var(--text-secondary);margin-bottom:2rem}
+        .hero .badge{display:inline-block;padding:0.5rem 1.5rem;border-radius:30px;font-size:0.9rem;font-weight:600;margin:0.5rem;background:rgba(139,92,246,0.2);color:var(--accent-purple);border:1px solid rgba(139,92,246,0.3)}
+        
+        /* CTA Buttons */
+        .cta-group{display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+        .cta-btn{padding:1rem 2rem;border-radius:12px;font-size:1rem;font-weight:600;text-decoration:none;transition:all 0.3s;cursor:pointer;border:none}
+        .cta-primary{background:var(--gradient-1);color:white}
+        .cta-primary:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(102,126,234,0.4)}
+        .cta-secondary{background:transparent;color:var(--accent-purple);border:2px solid var(--accent-purple)}
+        .cta-secondary:hover{background:rgba(139,92,246,0.1);transform:translateY(-3px)}
+        
+        /* Stats Section */
+        .stats{display:flex;justify-content:center;gap:4rem;padding:3rem 2rem;flex-wrap:wrap}
+        .stat{text-align:center}
+        .stat-number{font-size:3rem;font-weight:700;background:var(--gradient-3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .stat-label{color:var(--text-secondary);font-size:0.9rem}
+        
+        /* Container */
+        .container{max-width:1200px;margin:0 auto;padding:4rem 2rem}
+        
+        /* Section Titles */
+        .section-title{text-align:center;margin-bottom:3rem}
+        .section-title h2{font-size:2.5rem;margin-bottom:1rem;background:var(--gradient-2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .section-title p{color:var(--text-secondary);font-size:1.1rem;max-width:600px;margin:0 auto}
+        
+        /* Problem Section */
+        .problem-section{background:var(--bg-secondary);padding:4rem 2rem}
+        .problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;max-width:1200px;margin:0 auto}
+        .problem-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:2rem;transition:all 0.3s}
+        .problem-card:hover{transform:translateY(-5px);border-color:var(--accent-red);box-shadow:0 10px 40px rgba(239,68,68,0.2)}
+        .problem-icon{font-size:2.5rem;margin-bottom:1rem}
+        .problem-card h3{color:var(--accent-red);margin-bottom:0.5rem}
+        .problem-card p{color:var(--text-secondary);font-size:0.95rem}
+        
+        /* Before/After Section */
+        .comparison-section{padding:4rem 2rem;background:var(--bg-primary)}
+        .comparison-container{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:1200px;margin:0 auto}
+        .comparison-box{background:var(--bg-card);border-radius:16px;padding:2rem;border:2px solid var(--border-color)}
+        .comparison-box.before{border-color:var(--accent-red)}
+        .comparison-box.after{border-color:var(--accent-green)}
+        .comparison-label{display:inline-block;padding:0.5rem 1rem;border-radius:8px;font-size:0.8rem;font-weight:600;margin-bottom:1rem}
+        .label-before{background:rgba(239,68,68,0.2);color:var(--accent-red)}
+        .label-after{background:rgba(16,185,129,0.2);color:var(--accent-green)}
+        .comparison-box h3{margin-bottom:1rem;font-size:1.2rem}
+        .code-block{background:var(--bg-primary);border:1px solid var(--border-color);border-radius:8px;padding:1rem;overflow-x:auto;font-family:'Fira Code','Cascadia Code',monospace;font-size:0.85rem;line-height:1.5}
+        .code-block code{color:var(--text-primary)}
+        .code-block .keyword{color:#ff7b72}
+        .code-block .string{color:#a5d6ff}
+        .code-block .comment{color:#8b949e}
+        .code-block .function{color:#d2a8ff}
+        .code-block .variable{color:#ffa657}
+        
+        /* Features Grid */
+        .features-section{padding:4rem 2rem;background:var(--bg-secondary)}
+        .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;max-width:1200px;margin:0 auto}
+        .feature-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:2rem;transition:all 0.3s;position:relative;overflow:hidden}
+        .feature-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:var(--gradient-1);transform:scaleX(0);transition:transform 0.3s}
+        .feature-card:hover{transform:translateY(-5px);border-color:var(--accent-purple)}
+        .feature-card:hover::before{transform:scaleX(1)}
+        .feature-icon{font-size:2.5rem;margin-bottom:1rem}
+        .feature-card h3{color:var(--accent-purple);margin-bottom:0.5rem}
+        .feature-card p{color:var(--text-secondary);font-size:0.95rem}
+        .feature-badge{position:absolute;top:1rem;right:1rem;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.7rem;font-weight:600;background:rgba(16,185,129,0.2);color:var(--accent-green)}
+        
+        /* Use Cases */
+        .usecases-section{padding:4rem 2rem;background:var(--bg-primary)}
+        .usecases-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;max-width:1200px;margin:0 auto}
+        .usecase-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;text-align:center;transition:all 0.3s}
+        .usecase-card:hover{transform:translateY(-3px);border-color:var(--accent-cyan)}
+        .usecase-icon{font-size:2rem;margin-bottom:0.5rem}
+        .usecase-card h4{color:var(--accent-cyan);margin-bottom:0.5rem}
+        .usecase-card p{color:var(--text-secondary);font-size:0.85rem}
+        
+        /* Quick Start */
+        .quickstart-section{padding:4rem 2rem;background:var(--bg-secondary)}
+        .quickstart-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:1000px;margin:0 auto}
+        .step{text-align:center;padding:2rem}
+        .step-number{width:60px;height:60px;border-radius:50%;background:var(--gradient-1);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 1rem}
+        .step h3{color:var(--accent-purple);margin-bottom:0.5rem}
+        .step p{color:var(--text-secondary);font-size:0.9rem}
+        
+        /* Security Section */
+        .security-section{padding:4rem 2rem;background:var(--bg-primary)}
+        .security-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;max-width:1200px;margin:0 auto}
+        .security-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:2rem;display:flex;gap:1rem;align-items:flex-start}
+        .security-icon{font-size:2rem;flex-shrink:0}
+        .security-card h4{color:var(--accent-green);margin-bottom:0.5rem}
+        .security-card p{color:var(--text-secondary);font-size:0.9rem}
+        
+        /* FAQ */
+        .faq-section{padding:4rem 2rem;background:var(--bg-secondary)}
+        .faq-list{max-width:800px;margin:0 auto}
+        .faq-item{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;margin-bottom:1rem;overflow:hidden}
+        .faq-question{padding:1.5rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--text-primary)}
+        .faq-question::after{content:'+';font-size:1.5rem;color:var(--accent-purple);transition:transform 0.3s}
+        .faq-item.active .faq-question::after{transform:rotate(45deg)}
+        .faq-answer{padding:0 1.5rem;max-height:0;overflow:hidden;transition:all 0.3s;color:var(--text-secondary)}
+        .faq-item.active .faq-answer{padding:0 1.5rem 1.5rem;max-height:500px}
+        
+        /* Footer */
+        .footer{background:var(--bg-tertiary);padding:3rem 2rem;text-align:center;border-top:1px solid var(--border-color)}
+        .footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:1rem;flex-wrap:wrap}
+        .footer-links a{color:var(--text-secondary);text-decoration:none;transition:color 0.2s}
+        .footer-links a:hover{color:var(--accent-purple)}
+        
+        /* Responsive */
+        @media(max-width:768px){.hero h1{font-size:2.5rem}.comparison-container{grid-template-columns:1fr}.quickstart-steps{grid-template-columns:1fr}.stats{gap:2rem}}
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>MTS Laravel Query Toolkit</h1>
+            <p class="tagline">Build powerful API queries in minutes, not hours. No more repetitive filtering, sorting, and pagination code.</p>
+            <div class="cta-group">
+                <a href="#quickstart" class="cta-btn cta-primary">Get Started in 5 Minutes</a>
+                <a href="#features" class="cta-btn cta-secondary">See Features</a>
+            </div>
+            <div style="margin-top:2rem">
+                <span class="badge">PHP 8.3+</span>
+                <span class="badge">Laravel 12/13</span>
+                <span class="badge">MTS License</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-number">90%</div>
+            <div class="stat-label">Less Boilerplate Code</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">13</div>
+            <div class="stat-label">Filter Types</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Minutes to Start</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Secure by Default</div>
+        </div>
+    </section>
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="section-title">
+            <h2>The Problem We Solve</h2>
+            <p>Tired of writing the same query code in every controller? We understand.</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="problem-icon"> repetitive</div>
+                <h3>Repetitive Code</h3>
+                <p>Writing the same filtering, sorting, and pagination logic in every controller. Hours wasted on boilerplate.</p>
+            </div>
+            <div class="problem-card">
+                <div class="problem-icon"> security</div>
+                <h3>Security Risks</h3>
+                <p>SQL injection vulnerabilities, arbitrary column access, and unauthorized relationship loading.</p>
+            </div>
+            <div class="problem-card">
+                <div class="problem-icon"> inconsistent</div>
+                <h3>Inconsistent APIs</h3>
+                <p>Every developer implements queries differently. No standard across your API endpoints.</p>
+            </div>
+            <div class="problem-card">
+                <div class="problem-icon"> performance</div>
+                <h3>Performance Issues</h3>
+                <p>N+1 queries, missing eager loading, and unrestricted pagination killing your database.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Before/After Comparison -->
+    <section class="comparison-section">
+        <div class="section-title">
+            <h2>Before vs After</h2>
+            <p>See how the package transforms your code</p>
+        </div>
+        <div class="comparison-container">
+            <div class="comparison-box before">
+                <span class="comparison-label label-before">Before - Without Package</span>
+                <h3>Manual Query Building (50+ lines)</h3>
+                <div class="code-block"><code><span class="keyword">public function</span> <span class="function">index</span>(Request <span class="variable">$request</span>)
+{
+    <span class="variable">$query</span> = User::<span class="function">query</span>();
+    
+    <span class="comment">// Manual filtering - repetitive!</span>
+    <span class="keyword">if</span> (<span class="variable">$request</span>-><span class="function">has</span>(<span class="string">'name'</span>)) {
+        <span class="variable">$query</span>-><span class="function">where</span>(<span class="string">'name'</span>, <span class="string">'like'</span>, <span class="string">'%'</span>.<span class="variable">$request</span>->name.<span class="string">'%'</span>);
+    }
+    <span class="keyword">if</span> (<span class="variable">$request</span>-><span class="function">has</span>(<span class="string">'status'</span>)) {
+        <span class="variable">$query</span>-><span class="function">where</span>(<span class="string">'status'</span>, <span class="variable">$request</span>->status);
+    }
+    <span class="keyword">if</span> (<span class="variable">$request</span>-><span class="function">has</span>(<span class="string">'min_salary'</span>)) {
+        <span class="variable">$query</span>-><span class="function">where</span>(<span class="string">'salary'</span>, <span class="string">'>='</span>, <span class="variable">$request</span>->min_salary);
+    }
+    <span class="keyword">if</span> (<span class="variable">$request</span>-><span class="function">has</span>(<span class="string">'max_salary'</span>)) {
+        <span class="variable">$query</span>-><span class="function">where</span>(<span class="string">'salary'</span>, <span class="string">'<='</span>, <span class="variable">$request</span>->max_salary);
+    }
+    
+    <span class="comment">// Manual sorting - error prone!</span>
+    <span class="variable">$sort</span> = <span class="variable">$request</span>-><span class="function">get</span>(<span class="string">'sort'</span>, <span class="string">'created_at'</span>);
+    <span class="variable">$direction</span> = <span class="function">strpos</span>(<span class="variable">$sort</span>, <span class="string">'-'</span>) === 0 ? <span class="string">'desc'</span> : <span class="string">'asc'</span>;
+    <span class="variable">$sort</span> = <span class="function">ltrim</span>(<span class="variable">$sort</span>, <span class="string">'-'</span>);
+    <span class="variable">$query</span>-><span class="function">orderBy</span>(<span class="variable">$sort</span>, <span class="variable">$direction</span>);
+    
+    <span class="comment">// Manual pagination</span>
+    <span class="variable">$perPage</span> = <span class="variable">$request</span>-><span class="function">get</span>(<span class="string">'per_page'</span>, <span class="number">15</span>);
+    <span class="keyword">return</span> <span class="variable">$query</span>-><span class="function">paginate</span>(<span class="variable">$perPage</span>);
+}</code></div>
+            </div>
+            <div class="comparison-box after">
+                <span class="comparison-label label-after">After - With Package</span>
+                <h3>Clean & Concise (10 lines)</h3>
+                <div class="code-block"><code><span class="keyword">public function</span> <span class="function">index</span>(Request <span class="variable">$request</span>)
+{
+    <span class="keyword">return</span> <span class="type">QueryBuilder</span>::<span class="function">for</span>(<span class="type">User</span>::<span class="keyword">class</span>, <span class="variable">$request</span>)
+        -><span class="function">allowedFilters</span>([
+            <span class="string">'name'</span>,
+            <span class="string">'status'</span>,
+            <span class="type">AllowedFilter</span>::<span class="function">gte</span>(<span class="string">'salary'</span>),
+            <span class="type">AllowedFilter</span>::<span class="function">lte</span>(<span class="string">'salary'</span>),
+        ])
+        -><span class="function">allowedSorts</span>([<span class="string">'name'</span>, <span class="string">'created_at'</span>])
+        -><span class="function">searchable</span>([<span class="string">'name'</span>, <span class="string">'email'</span>])
+        -><span class="function">paginate</span>();
+}</code></div>
+                <p style="margin-top:1rem;color:var(--accent-green);font-weight:600">Same functionality, 80% less code, 100% secure!</p>
+            </div>
+        </div>
+    </section>
+    <!-- Features Grid -->
+    <section class="features-section" id="features">
+        <div class="section-title">
+            <h2>Powerful Features</h2>
+            <p>Everything you need for production-ready API queries</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-badge">Core</span>
+                <div class="feature-icon">filter</div>
+                <h3>Advanced Filtering</h3>
+                <p>13 filter types: exact, partial, boolean, numeric, date, enum, scope, callback, relationship, nested, and JSON filters.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Core</span>
+                <div class="feature-icon">sort</div>
+                <h3>Flexible Sorting</h3>
+                <p>Single or multi-field sorting with direction control. Use '-' prefix for descending order.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Core</span>
+                <div class="feature-icon">search</div>
+                <h3>Powerful Search</h3>
+                <p>LIKE and full-text search across multiple fields. PostgreSQL and MySQL compatible.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Core</span>
+                <div class="feature-icon">page</div>
+                <h3>Smart Pagination</h3>
+                <p>Standard and cursor pagination with configurable limits to prevent abuse.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Pro</span>
+                <div class="feature-icon">link</div>
+                <h3>Relationship Filters</h3>
+                <p>Filter by related model attributes. Supports nested relationships up to any depth.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Pro</span>
+                <div class="feature-icon">layers</div>
+                <h3>Eager Loading</h3>
+                <p>Automatic eager loading with includes. Count includes and custom includes supported.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Pro</span>
+                <div class="feature-icon">field</div>
+                <h3>Field Selection</h3>
+                <p>Sparse fieldsets to return only the data you need. Reduces payload size.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">Security</span>
+                <div class="feature-icon">shield</div>
+                <h3>Whitelist Security</h3>
+                <p>All filters must be explicitly allowed. No SQL injection, no unauthorized access.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-badge">DevX</span>
+                <div class="feature-icon">puzzle</div>
+                <h3>Extensible</h3>
+                <p>Custom filters, sorts, and search drivers. Macro support for runtime extensions.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Use Cases -->
+    <section class="usecases-section">
+        <div class="section-title">
+            <h2>Perfect For</h2>
+            <p>Built for enterprise-grade applications</p>
+        </div>
+        <div class="usecases-grid">
+            <div class="usecase-card">
+                <div class="usecase-icon">cloud</div>
+                <h4>SaaS Applications</h4>
+                <p>Multi-tenant APIs with complex filtering needs</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">contacts</div>
+                <h4>CRM Systems</h4>
+                <p>Contact management with relationship filters</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">business</div>
+                <h4>ERP Systems</h4>
+                <p>Complex data queries across modules</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">cart</div>
+                <h4>E-commerce</h4>
+                <p>Product search with price ranges and categories</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">health</div>
+                <h4>Healthcare</h4>
+                <p>Patient data with strict security requirements</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">finance</div>
+                <h4>Finance</h4>
+                <p>Transaction queries with date ranges and filters</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">dashboard</div>
+                <h4>Admin Dashboards</h4>
+                <p>Data tables with sorting and filtering</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">mobile</div>
+                <h4>Mobile APIs</h4>
+                <p>Optimized queries for mobile app consumption</p>
+            </div>
+        </div>
+    </section>
+    <!-- Quick Start -->
+    <section class="quickstart-section" id="quickstart">
+        <div class="section-title">
+            <h2>Get Started in 5 Minutes</h2>
+            <p>Three simple steps to transform your API</p>
+        </div>
+        <div class="quickstart-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Install Package</h3>
+                <p>Run composer require and publish the config</p>
+                <div class="code-block"><code>composer require magetech/laravel-query-toolkit
+php artisan mts:query:install</code></div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Configure Query</h3>
+                <p>Define your allowed filters, sorts, and includes</p>
+                <div class="code-block"><code>->allowedFilters(['name', 'status'])
+->allowedSorts(['name', 'created_at'])
+->searchable(['name', 'email'])</code></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Return Results</h3>
+                <p>Use paginate() or get() to return data</p>
+                <div class="code-block"><code>return QueryBuilder::for(User::class)
+    ->allowedFilters([...])
+    ->paginate();</code></div>
+            </div>
+        </div>
+    </section>
+    <!-- Security Section -->
+    <section class="security-section">
+        <div class="section-title">
+            <h2>Enterprise-Grade Security</h2>
+            <p>Built with security as a first-class citizen</p>
+        </div>
+        <div class="security-grid">
+            <div class="security-card">
+                <div class="security-icon">shield</div>
+                <div>
+                    <h4>Whitelist-Only Model</h4>
+                    <p>Every filter, sort, include, and field must be explicitly allowed. No exceptions.</p>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">lock</div>
+                <div>
+                    <h4>SQL Injection Prevention</h4>
+                    <p>All queries use parameterized statements. User input never touches raw SQL.</p>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">check</div>
+                <div>
+                    <h4>Relationship Validation</h4>
+                    <p>Related models must be in the allowed list. No unauthorized data access.</p>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">limit</div>
+                <div>
+                    <h4>Pagination Limits</h4>
+                    <p>Configurable max page size prevents abuse and excessive data retrieval.</p>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">validate</div>
+                <div>
+                    <h4>Type Validation</h4>
+                    <p>Enum filters validate against allowed values. Date filters parse with Carbon.</p>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">middleware</div>
+                <div>
+                    <h4>Request Validation</h4>
+                    <p>Built-in middleware validates request parameters before they reach your code.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="section-title">
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know</p>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">How long does it take to set up?</div>
+                <div class="faq-answer">Less than 5 minutes! Just run composer require, publish the config, and start using the QueryBuilder in your controllers.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Does it work with existing Laravel projects?</div>
+                <div class="faq-answer">Yes! The package is designed to work alongside your existing code. You can adopt it incrementally, one controller at a time.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Is it secure?</div>
+                <div class="faq-answer">Absolutely. The whitelist-only security model ensures only explicitly allowed filters can be executed. All queries use parameterized statements to prevent SQL injection.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Can I customize the query parameters?</div>
+                <div class="faq-answer">Yes! You can customize all URL parameter names (filter, sort, include, fields, search) in the config file to match your API conventions.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Does it support MongoDB or other databases?</div>
+                <div class="faq-answer">Currently, the package supports MySQL, PostgreSQL, and SQLite. MongoDB support may be added in future versions.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">What about performance?</div>
+                <div class="faq-answer">The package is optimized for performance. It prevents N+1 queries through eager loading, supports cursor pagination for large datasets, and includes configurable caching for filter metadata.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Can I create custom filter types?</div>
+                <div class="faq-answer">Yes! Use the artisan command php artisan mts:query:make-filter to generate a custom filter class. You can also use callback filters for quick custom logic.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Is there documentation?</div>
+                <div class="faq-answer">Yes! We provide comprehensive documentation including technical architecture docs, this customer guide, and a complete API reference.</div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#features">Features</a>
+            <a href="#quickstart">Quick Start</a>
+            <a href="technical-document.html">Technical Docs</a>
+            <a href="https://github.com/magetechsolutions/laravel-query-toolkit">GitHub</a>
+            <a href="https://packagist.org/packages/magetech/laravel-query-toolkit">Packagist</a>
+        </div>
+        <p style="color:var(--text-muted)">MTS Laravel Query Toolkit v1.0.0 | MageTech Solutions</p>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem">MTS License | Built with PHP 8.3+ and Laravel 12/13</p>
+    </footer>
+
+    <script>
+        function toggleFaq(element) {
+            const item = element.parentElement;
+            item.classList.toggle('active');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .problem-card, .usecase-card, .security-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s, transform 0.5s';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

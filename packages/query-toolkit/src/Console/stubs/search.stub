@@ -1,0 +1,48 @@
+﻿<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use MageTech\QueryToolkit\Contracts\SearchInterface;
+
+class {{ class }} implements SearchInterface
+{
+    protected array ;
+    protected array ;
+
+    public function __construct(array , array  = [])
+    {
+        ->fields = ;
+        ->weightedFields = ;
+    }
+
+    public static function make(array , array  = []): static
+    {
+        return new static(, );
+    }
+
+    public function apply(Builder , string ): Builder
+    {
+        // TODO: Implement your custom search logic here
+
+        ->where(function (Builder ) use () {
+            foreach (->fields as ) {
+                ->orWhere(, 'LIKE', '%' .  . '%');
+            }
+        });
+
+        return ;
+    }
+
+    public function getFields(): array
+    {
+        return ->fields;
+    }
+
+    public function getWeightedFields(): array
+    {
+        return ->weightedFields;
+    }
+}

@@ -1,0 +1,6 @@
+* text=auto
+*.php text diff=php
+*.md text diff=markdown
+*.yml text
+*.json text
+*.xml text

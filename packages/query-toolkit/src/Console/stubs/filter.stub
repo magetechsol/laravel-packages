@@ -1,0 +1,29 @@
+﻿<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use MageTech\QueryToolkit\Filters\BaseFilter;
+use MageTech\QueryToolkit\Enums\FilterType;
+
+class {{ class }} extends BaseFilter
+{
+    public function __construct(string , ?string  = null)
+    {
+        parent::__construct(, , FilterType::Custom);
+    }
+
+    public static function make(string , ?string  = null): static
+    {
+        return new static(, );
+    }
+
+    protected function applyFilter(Builder , mixed , string ): Builder
+    {
+        // TODO: Implement your custom filter logic here
+
+        return ->where(, '=', );
+    }
+}

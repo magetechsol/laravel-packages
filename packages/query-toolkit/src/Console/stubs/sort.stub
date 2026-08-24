@@ -1,0 +1,41 @@
+﻿<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Builder;
+use MageTech\QueryToolkit\Contracts\SortInterface;
+
+class {{ class }} implements SortInterface
+{
+    public function __construct(
+        protected string ,
+        protected ?string  = null,
+    ) {}
+
+    public static function make(string , ?string  = null): static
+    {
+        return new static(, );
+    }
+
+    public function apply(Builder , bool ): Builder
+    {
+         =  ? 'desc' : 'asc';
+         = ->alias ?? ->property;
+
+        // TODO: Implement your custom sort logic here
+
+        return ->orderBy(, );
+    }
+
+    public function getProperty(): string
+    {
+        return ->property;
+    }
+
+    public function getAlias(): ?string
+    {
+        return ->alias;
+    }
+}
