@@ -32,11 +32,13 @@ Standardized enterprise API responses, errors and API architecture.
 
 ### Webhook Manager
 
-Reliable inbound and outbound webhook infrastructure.
+Enterprise-grade inbound and outbound webhook infrastructure.
 
 **Package:** `magetech/laravel-webhooks`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/webhooks/README.md)
 
 ---
 
