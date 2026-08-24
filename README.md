@@ -12,7 +12,7 @@ Advanced filtering, searching, sorting and pagination.
 
 **Package:** `magetech/laravel-query-toolkit`
 
-**Status:** 🚧 Development
+**Status:** ✅ Stable
 
 [Documentation](packages/query-toolkit/README.md)
 
