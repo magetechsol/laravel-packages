@@ -1,9 +1,10 @@
 {
     "name": "magetech/laravel-webhooks",
-    "description": "Reliable inbound and outbound webhook infrastructure for Laravel.",
-    "keywords": ["laravel", "webhooks", "events", "integrations"],
+    "description": "Enterprise-grade inbound and outbound webhook infrastructure for Laravel.",
+    "keywords": ["laravel", "webhooks", "events", "integrations", "stripe", "razorpay", "shopify", "magento"],
     "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/webhooks",
     "license": "MIT",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "MageTech Solutions",
@@ -11,12 +12,21 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0|^13.0"
+        "php": "^8.3",
+        "illuminate/contracts": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/queue": "^13.0",
+        "illuminate/routing": "^13.0",
+        "illuminate/support": "^13.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
-        "phpunit/phpunit": "^10.0|^11.0|^12.0"
+        "laravel/pint": "^1.0",
+        "larastan/larastan": "^3.0",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^2.0",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -32,11 +42,25 @@
         "laravel": {
             "providers": [
                 "MageTech\\Webhooks\\WebhooksServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Webhook": "MageTech\\Webhooks\\Support\\Facades\\Webhook",
+                "WebhookEvent": "MageTech\\Webhooks\\Support\\Facades\\WebhookEvent"
+            }
         }
     },
+    "scripts": {
+        "test": "pest",
+        "test-coverage": "pest --coverage",
+        "format": "pint",
+        "format-test": "pint --test",
+        "analyse": "phpstan analyse"
+    },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true

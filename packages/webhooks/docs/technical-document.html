@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTS Laravel Webhook Manager - Technical Documentation</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-code: #0d1117;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #bc8cff;
+            --border: #30363d;
+            --code-bg: #161b22;
+            --inline-code-bg: #1c2128;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; }
+
+        /* Navigation */
+        nav { background: var(--bg-secondary); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; width: 280px; height: 100vh; overflow-y: auto; z-index: 100; }
+        nav::-webkit-scrollbar { width: 4px; }
+        nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .nav-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .nav-brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #58a6ff, #bc8cff); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: white; }
+        .nav-brand-text { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+        .nav-version { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 20px; }
+        nav h3 { font-size: 0.7rem; text-transform: uppercase; color: var(--accent); margin: 20px 0 8px; letter-spacing: 1.5px; font-weight: 600; }
+        nav a { display: block; padding: 5px 12px; color: var(--text-secondary); text-decoration: none; border-radius: 6px; font-size: 0.85rem; transition: all 0.15s; }
+        nav a:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        nav a.active { background: rgba(88,166,255,0.1); color: var(--accent); }
+
+        /* Content */
+        .content { margin-left: 280px; padding: 40px 48px; max-width: 1100px; }
+
+        /* Header */
+        .doc-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+        .doc-header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+        .doc-header p { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 16px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+        .badge-blue { background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+        .badge-green { background: rgba(63,185,80,0.12); color: var(--accent-green); border: 1px solid rgba(63,185,80,0.2); }
+        .badge-purple { background: rgba(188,140,255,0.12); color: var(--accent-purple); border: 1px solid rgba(188,140,255,0.2); }
+        .badge-yellow { background: rgba(210,153,34,0.12); color: var(--accent-yellow); border: 1px solid rgba(210,153,34,0.2); }
+
+        /* Sections */
+        section { margin-bottom: 56px; }
+        h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        h3 { font-size: 1.2rem; font-weight: 600; margin: 28px 0 12px; color: var(--accent); }
+        h4 { font-size: 1.05rem; font-weight: 600; margin: 20px 0 8px; color: var(--text-primary); }
+        p { margin-bottom: 14px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); }
+
+        /* Code */
+        code { background: var(--inline-code-bg); padding: 2px 7px; border-radius: 4px; font-size: 0.88em; font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; color: var(--accent); }
+        pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 14px 0 24px; position: relative; }
+        pre code { background: none; padding: 0; color: var(--text-primary); font-size: 0.88rem; line-height: 1.65; }
+        .code-label { position: absolute; top: 8px; right: 12px; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin: 14px 0 24px; font-size: 0.92rem; }
+        th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+        th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-primary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        td { color: var(--text-secondary); }
+        td code { font-size: 0.85rem; }
+
+        /* Pipeline */
+        .pipeline { display: flex; align-items: stretch; gap: 0; margin: 20px 0 28px; flex-wrap: wrap; }
+        .pipeline-step { flex: 1; min-width: 120px; background: var(--bg-secondary); border: 1px solid var(--border); padding: 16px 12px; text-align: center; position: relative; }
+        .pipeline-step:first-child { border-radius: 10px 0 0 10px; }
+        .pipeline-step:last-child { border-radius: 0 10px 10px 0; }
+        .pipeline-step .num { font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .pipeline-step .label { font-weight: 600; font-size: 0.85rem; margin-top: 4px; }
+        .pipeline-step .desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .pipeline-arrow { display: flex; align-items: center; color: var(--text-muted); font-size: 1.1rem; padding: 0 2px; }
+
+        /* Info boxes */
+        .info-box { background: rgba(88,166,255,0.06); border: 1px solid rgba(88,166,255,0.2); border-radius: 10px; padding: 16px 20px; margin: 16px 0 24px; }
+        .info-box.warning { background: rgba(210,153,34,0.06); border-color: rgba(210,153,34,0.2); }
+        .info-box.danger { background: rgba(248,81,73,0.06); border-color: rgba(248,81,73,0.2); }
+        .info-box.success { background: rgba(63,185,80,0.06); border-color: rgba(63,185,80,0.2); }
+        .info-box-title { font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        .info-box p { margin-bottom: 6px; font-size: 0.9rem; }
+        .info-box p:last-child { margin-bottom: 0; }
+
+        /* Lists */
+        ul, ol { margin: 10px 0 18px 24px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+        li code { font-size: 0.85rem; }
+
+        /* File tree */
+        .file-tree { background: var(--bg-code); border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-family: 'SF Mono', monospace; font-size: 0.82rem; line-height: 1.8; color: var(--text-secondary); margin: 14px 0 24px; }
+        .file-tree .dir { color: var(--accent); font-weight: 600; }
+        .file-tree .file { color: var(--text-secondary); }
+        .file-tree .comment { color: var(--text-muted); }
+
+        /* Grid */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 14px 0 24px; }
+        .col-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .col-box h4 { margin-top: 0; }
+
+        @media (max-width: 900px) {
+            nav { display: none; }
+            .content { margin-left: 0; padding: 20px; }
+            .pipeline { flex-direction: column; }
+            .pipeline-step { border-radius: 8px !important; }
+            .pipeline-arrow { transform: rotate(90deg); justify-content: center; }
+            .two-col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-brand">
+        <div class="nav-brand-icon">MW</div>
+        <div class="nav-brand-text">Webhooks</div>
+    </div>
+    <div class="nav-version">v1.0.0 &middot; PHP 8.3+ &middot; Laravel 13</div>
+
+    <h3>Overview</h3>
+    <a href="#introduction">Introduction</a>
+    <a href="#requirements">Requirements</a>
+    <a href="#installation">Installation</a>
+    <a href="#architecture">Architecture</a>
+
+    <h3>Inbound Webhooks</h3>
+    <a href="#inbound-pipeline">Pipeline Walkthrough</a>
+    <a href="#authentication">Authentication</a>
+    <a href="#signature-verification">Signature Verification</a>
+    <a href="#timestamp-validation">Timestamp Validation</a>
+    <a href="#ip-restrictions">IP Restrictions</a>
+    <a href="#idempotency">Idempotency</a>
+    <a href="#handlers">Event Handlers</a>
+    <a href="#retry-mechanism">Retry Mechanism</a>
+    <a href="#dead-letter">Dead Letter Queue</a>
+    <a href="#sensitive-data">Sensitive Data Masking</a>
+
+    <h3>Outbound Webhooks</h3>
+    <a href="#outbound-sending">Sending Webhooks</a>
+    <a href="#outbound-signing">Request Signing</a>
+    <a href="#outbound-tracking">Delivery Tracking</a>
+
+    <h3>Provider Support</h3>
+    <a href="#providers-overview">Provider Overview</a>
+    <a href="#stripe-provider">Stripe</a>
+    <a href="#razorpay-provider">Razorpay</a>
+    <a href="#shopify-provider">Shopify</a>
+    <a href="#magento-provider">Magento</a>
+    <a href="#custom-provider">Custom / Generic</a>
+
+    <h3>Reference</h3>
+    <a href="#configuration">Configuration</a>
+    <a href="#database">Database Schema</a>
+    <a href="#commands">Artisan Commands</a>
+    <a href="#events-ref">Events</a>
+    <a href="#models">Models &amp; Scopes</a>
+    <a href="#facades">Facades</a>
+    <a href="#helpers">Helper Functions</a>
+    <a href="#testing">Testing</a>
+    <a href="#file-structure">File Structure</a>
+</nav>
+
+<div class="content">
+    <div class="doc-header">
+        <h1>MTS Laravel Webhook Manager</h1>
+        <p>Enterprise-grade inbound and outbound webhook infrastructure for Laravel. Provides a complete pipeline for receiving, authenticating, validating, persisting, deduplicating, processing, retrying, and managing webhooks from any provider.</p>
+        <div>
+            <span class="badge badge-blue">PHP 8.3+</span>
+            <span class="badge badge-green">Laravel 13.x</span>
+            <span class="badge badge-purple">v1.0.0</span>
+            <span class="badge badge-yellow">Enterprise</span>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- INTRODUCTION -->
+    <!-- ============================================ -->
+    <section id="introduction">
+        <h2>1. Introduction</h2>
+        <p>The <strong>MTS Laravel Webhook Manager</strong> (<code>magetech/laravel-webhooks</code>) is a complete webhook infrastructure package for Laravel applications. It handles both <strong>inbound</strong> webhooks (receiving events from external providers like Stripe, Razorpay, Shopify, Magento) and <strong>outbound</strong> webhooks (sending events from your Laravel application to external URLs).</p>
+
+        <h3>What Problem Does It Solve?</h3>
+        <p>Webhooks are the backbone of modern integrations, but handling them correctly is deceptively complex. You need signature verification, replay protection, idempotency, retry logic, audit trails, and more. Without a proper framework, teams end up with fragile, ad-hoc webhook handlers scattered across their codebase.</p>
+        <p>This package provides a <strong>single, standardized pipeline</strong> that handles every aspect of webhook management with enterprise-grade reliability.</p>
+
+        <h3>Key Capabilities</h3>
+        <ul>
+            <li><strong>Inbound Pipeline</strong> &mdash; Receive, authenticate, validate, persist, deduplicate, process, retry, and dead-letter webhooks</li>
+            <li><strong>Outbound Pipeline</strong> &mdash; Send signed, queued webhooks with full delivery tracking and retry support</li>
+            <li><strong>Provider Support</strong> &mdash; Built-in support for Stripe, Razorpay, Shopify, Magento, and a generic provider for any HMAC-SHA256 service</li>
+            <li><strong>Security</strong> &mdash; HMAC-SHA256 signature verification, timestamp-based replay protection, IP restrictions, and sensitive data masking</li>
+            <li><strong>Reliability</strong> &mdash; Exponential backoff retry, dead-letter queue, webhook replay, and full audit trail</li>
+            <li><strong>Observability</strong> &mdash; Statistics commands, lifecycle events, attempt history, and error tracking</li>
+        </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- REQUIREMENTS -->
+    <!-- ============================================ -->
+    <section id="requirements">
+        <h2>2. Requirements</h2>
+        <table>
+            <tr><th>Dependency</th><th>Version</th><th>Purpose</th></tr>
+            <tr><td>PHP</td><td><code>^8.3</code></td><td>Language runtime</td></tr>
+            <tr><td>Laravel</td><td><code>^13.0</code></td><td>Framework</td></tr>
+            <tr><td>illuminate/support</td><td><code>^13.0</code></td><td>Service provider, helpers</td></tr>
+            <tr><td>illuminate/database</td><td><code>^13.0</code></td><td>Eloquent models, migrations</td></tr>
+            <tr><td>illuminate/http</td><td><code>^13.0</code></td><td>HTTP client for outbound</td></tr>
+            <tr><td>illuminate/queue</td><td><code>^13.0</code></td><td>Queue jobs</td></tr>
+            <tr><td>illuminate/routing</td><td><code>^13.0</code></td><td>Route registration</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- INSTALLATION -->
+    <!-- ============================================ -->
+    <section id="installation">
+        <h2>3. Installation</h2>
+        <h3>Step 1: Install via Composer</h3>
+        <pre><code>composer require magetech/laravel-webhooks</code></pre>
+
+        <h3>Step 2: Run the Installer</h3>
+        <pre><code>php artisan mts:webhooks:install</code></pre>
+        <p>This publishes:</p>
+        <ul>
+            <li><code>config/mts-webhooks.php</code> &mdash; Main configuration file</li>
+            <li><code>database/migrations/</code> &mdash; Three migration files for the database tables</li>
+            <li><code>routes/webhooks.php</code> &mdash; Inbound webhook route file (customizable)</li>
+        </ul>
+
+        <h3>Step 3: Run Migrations</h3>
+        <pre><code>php artisan migrate</code></pre>
+
+        <h3>Step 4: Configure Provider Secrets</h3>
+        <pre><code># .env
+STRIPE_WEBHOOK_SECRET=whsec_your_secret_here
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_secret
+SHOPIFY_WEBHOOK_SECRET=your_shopify_secret
+MAGENTO_WEBHOOK_SECRET=your_magento_secret
+MTS_WEBHOOKS_GENERIC_SECRET=your_generic_secret</code></pre>
+
+        <h3>Step 5: Register Handlers</h3>
+        <pre><code>// config/mts-webhooks.php
+'processing' => [
+    'handler_map' => [
+        'payment_intent.succeeded' => App\Handlers\PaymentSucceeded::class,
+        'order.created'            => App\Handlers\OrderCreated::class,
+        'user注册d'                => App\Handlers\UserRegistered::class,
+    ],
+],</code></pre>
+
+        <div class="info-box success">
+            <div class="info-box-title">Auto-Discovery</div>
+            <p>The service provider is auto-discovered by Laravel via <code>composer.json</code> <code>extra.laravel.providers</code>. No manual registration needed.</p>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ARCHITECTURE -->
+    <!-- ============================================ -->
+    <section id="architecture">
+        <h2>4. Architecture</h2>
+        <p>The package follows a <strong>pipeline architecture</strong> where each webhook passes through a series of discrete, testable stages. Each stage is a dedicated class that can be extended or replaced.</p>
+
+        <h3>High-Level Architecture</h3>
+        <pre><code>┌─────────────────────────────────────────────────────────────────────┐
+│                        INBOUND WEBHOOKS                            │
+│                                                                     │
+│  HTTP Request ──&gt; Route ──&gt; Controller ──&gt; Pipeline               │
+│                                                                     │
+│  Pipeline Stages:                                                   │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
+│  │Authentic-│ │Validate  │ │Persist   │ │Deduplic- │              │
+│  │ate       │ │Payload   │ │to DB     │ │ate       │              │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘              │
+│       │             │            │             │                     │
+│  ┌────▼─────┐ ┌────▼─────┐ ┌────▼─────┐ ┌────▼─────┐              │
+│  │Process   │ │On Fail:  │ │On Death: │ │Complete  │              │
+│  │Handler   │ │Retry     │ │Dead Lettr│ │          │              │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                        OUTBOUND WEBHOOKS                           │
+│                                                                     │
+│  Webhook::send() ──&gt; Build ──&gt; Sign ──&gt; Persist ──&gt; Queue/Now   │
+│                                                                     │
+│  Delivery: HTTP POST ──&gt; Track Response ──&gt; Retry on Failure      │
+└─────────────────────────────────────────────────────────────────────┘</code></pre>
+
+        <h3>Class Dependency Map</h3>
+        <table>
+            <tr><th>Component</th><th>Class</th><th>Responsibility</th></tr>
+            <tr><td>Controller</td><td><code>WebhookController</code></td><td>Entry point, error handling, HTTP responses</td></tr>
+            <tr><td>Pipeline</td><td><code>WebhookPipeline</code></td><td>Orchestrates all inbound stages</td></tr>
+            <tr><td>Authenticator</td><td><code>Authenticator</code></td><td>Resolves provider, verifies signature, timestamp, IP</td></tr>
+            <tr><td>Validator</td><td><code>Validator</code></td><td>Validates payload structure and JSON</td></tr>
+            <tr><td>Persister</td><td><code>Persister</code></td><td>Stores webhook and attempt records in database</td></tr>
+            <tr><td>Deduplicator</td><td><code>Deduplicator</code></td><td>Checks idempotency key uniqueness</td></tr>
+            <tr><td>Processor</td><td><code>Processor</code></td><td>Resolves and invokes the handler class</td></tr>
+            <tr><td>Retrier</td><td><code>Retrier</code></td><td>Calculates backoff, schedules retry, escalates to dead letter</td></tr>
+            <tr><td>DeadLetterHandler</td><td><code>DeadLetterHandler</code></td><td>Marks webhook as dead, dispatches events</td></tr>
+            <tr><td>Signer</td><td><code>Signer</code></td><td>HMAC-SHA256 signing for outbound webhooks</td></tr>
+            <tr><td>Dispatcher</td><td><code>Dispatcher</code></td><td>Dispatches outbound jobs to queue</td></tr>
+            <tr><td>DeliveryTracker</td><td><code>DeliveryTracker</code></td><td>Records delivery responses, handles retries</td></tr>
+            <tr><td>Masker</td><td><code>SensitiveDataMasker</code></td><td>Masks sensitive fields before storage</td></tr>
+            <tr><td>RetryStrategy</td><td><code>RetryStrategy</code></td><td>Calculates exponential backoff delays</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- INBOUND PIPELINE -->
+    <!-- ============================================ -->
+    <section id="inbound-pipeline">
+        <h2>5. Inbound Webhook Pipeline</h2>
+        <p>Every inbound webhook passes through the following pipeline. Each step is a dedicated class that can be overridden via the service container.</p>
+
+        <div class="pipeline">
+            <div class="pipeline-step"><div class="num">Step 1</div><div class="label">Receive</div><div class="desc">HTTP POST hits route</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 2</div><div class="label">Authenticate</div><div class="desc">HMAC, timestamp, IP</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 3</div><div class="label">Validate</div><div class="desc">JSON structure</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 4</div><div class="label">Persist</div><div class="desc">Store to database</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 5</div><div class="label">Deduplicate</div><div class="desc">Check idempotency</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 6</div><div class="label">Process</div><div class="desc">Invoke handler</div></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step"><div class="num">Step 7</div><div class="label">Complete</div><div class="desc">Mark processed</div></div>
+        </div>
+
+        <h3>Pipeline Source Code</h3>
+        <pre><code>// src/Inbound/Pipeline/WebhookPipeline.php
+
+class WebhookPipeline
+{
+    public function __construct(
+        private readonly Authenticator $authenticator,
+        private readonly Validator $validator,
+        private readonly Persister $persister,
+        private readonly Deduplicator $deduplicator,
+        private readonly Processor $processor,
+        private readonly Retrier $retrier,
+    ) {}
+
+    public function handle(Request $request, string $provider): Webhook
+    {
+        $startTime = microtime(true);
+
+        // Step 1: Authenticate (HMAC + timestamp + IP)
+        $providerInstance = $this->authenticator->authenticate($request, $provider);
+
+        // Step 2: Validate payload structure
+        $payload = $this->validator->validate($request, $provider);
+
+        // Step 3: Extract metadata from provider
+        $eventName = $providerInstance->extractEventName($request);
+        $idempotencyKey = $providerInstance->extractIdempotencyKey($request, $payload);
+
+        // Step 4: Persist to database
+        $webhook = $this->persister->persist(/* ... */);
+
+        // Step 5: Dispatch WebhookReceived event
+        Event::dispatch(new WebhookReceived($webhook));
+
+        // Step 6: Check for duplicates
+        $this->deduplicator->ensureUnique($webhook);
+
+        // Step 7: Process handler
+        try {
+            $webhook->markAsProcessing();
+            $this->processor->process($webhook);
+            $webhook->markAsProcessed();
+            Event::dispatch(new WebhookProcessed($webhook));
+        } catch (\Throwable $exception) {
+            Event::dispatch(new WebhookFailed($webhook, $exception));
+            $this->retrier->handle($webhook, $exception);
+        }
+
+        return $webhook;
+    }
+}</code></pre>
+
+        <h3>What Happens at Each Step</h3>
+        <table>
+            <tr><th>Step</th><th>Class</th><th>On Success</th><th>On Failure</th></tr>
+            <tr><td>1. Authenticate</td><td><code>Authenticator</code></td><td>Returns provider instance</td><td>Throws <code>SignatureVerificationException</code> or <code>ReplayAttackException</code></td></tr>
+            <tr><td>2. Validate</td><td><code>Validator</code></td><td>Returns decoded payload array</td><td>Throws <code>InvalidPayloadException</code></td></tr>
+            <tr><td>3. Persist</td><td><code>Persister</code></td><td>Creates <code>Webhook</code> record</td><td>Throws on DB error</td></tr>
+            <tr><td>4. Deduplicate</td><td><code>Deduplicator</code></td><td>Returns (unique)</td><td>Throws <code>DuplicateWebhookException</code></td></tr>
+            <tr><td>5. Process</td><td><code>Processor</code></td><td>Handler runs, webhook marked processed</td><td>Enters retry flow</td></tr>
+            <tr><td>6. Retry</td><td><code>Retrier</code></td><td>Schedules retry at calculated time</td><td>Escalates to dead letter after max attempts</td></tr>
+            <tr><td>7. Dead Letter</td><td><code>DeadLetterHandler</code></td><td>Marks webhook dead, fires event</td><td>N/A (terminal state)</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- AUTHENTICATION -->
+    <!-- ============================================ -->
+    <section id="authentication">
+        <h2>6. Authentication</h2>
+        <p>The <code>Authenticator</code> class resolves the correct provider implementation and runs three security checks:</p>
+        <pre><code>// src/Inbound/Pipeline/Authenticator.php
+
+class Authenticator
+{
+    private const PROVIDER_MAP = [
+        'stripe'   => StripeProvider::class,
+        'razorpay' => RazorpayProvider::class,
+        'shopify'  => ShopifyProvider::class,
+        'magento'  => MagentoProvider::class,
+        'generic'  => GenericProvider::class,
+    ];
+
+    public function authenticate(Request $request, string $provider): WebhookProviderContract
+    {
+        $providerInstance = $this->resolveProvider($provider);
+
+        // Check 1: HMAC signature verification
+        if (config('mts-webhooks.security.verify_hmac', true)) {
+            $this->verifySignature($request, $providerInstance);
+        }
+
+        // Check 2: Timestamp validation (replay protection)
+        if (config('mts-webhooks.security.verify_timestamp', true)) {
+            $this->verifyTimestamp($request, $providerInstance);
+        }
+
+        // Check 3: IP restrictions
+        $this->verifyIpRestrictions($request);
+
+        return $providerInstance;
+    }
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SIGNATURE VERIFICATION -->
+    <!-- ============================================ -->
+    <section id="signature-verification">
+        <h2>7. Signature Verification</h2>
+        <p>Each provider implements its own signature verification strategy via the <code>WebhookProviderContract</code> interface.</p>
+
+        <h3>Provider Contract</h3>
+        <pre><code>// src/Contracts/WebhookProviderContract.php
+
+interface WebhookProviderContract
+{
+    public function name(): string;
+    public function verifySignature(Request $request, string $secret): bool;
+    public function extractEventName(Request $request): ?string;
+    public function extractIdempotencyKey(Request $request, array $payload): ?string;
+    public function getSignatureHeader(): string;
+    public function getTimestampFromRequest(Request $request): ?int;
+}</code></pre>
+
+        <h3>Generic HMAC-SHA256 Verification</h3>
+        <pre><code>// Abstract base class (used by Razorpay, Magento, Generic)
+protected function computeSignature(string $payload, string $secret): string
+{
+    return hash_hmac('sha256', $payload, $secret);
+}
+
+public function verifySignature(Request $request, string $secret): bool
+{
+    $signature = $request->header($this->getSignatureHeader());
+    $payload = $request->getContent();
+    $expected = $this->computeSignature($payload, $secret);
+    return hash_equals($expected, $signature);
+}</code></pre>
+
+        <h3>Stripe Timestamped Signature</h3>
+        <p>Stripe uses a unique format with <code>t=timestamp,v1=signature</code>:</p>
+        <pre><code>// src/Inbound/Providers/StripeProvider.php
+public function verifySignature(Request $request, string $secret): bool
+{
+    $signatureHeader = $request->header('Stripe-Signature');
+    $signatureParts = $this->parseSignatureHeader($signatureHeader);
+    // Stripe signs: timestamp + "." + payload
+    $signedPayload = $signatureParts['timestamp'] . '.' . $payload;
+    $expected = hash_hmac('sha256', $signedPayload, $secret);
+    return hash_equals($expected, $signatureParts['signature']);
+}</code></pre>
+
+        <h3>Shopify Base64 HMAC</h3>
+        <p>Shopify uses base64-encoded HMAC-SHA256:</p>
+        <pre><code>// src/Inbound/Providers/ShopifyProvider.php
+public function verifySignature(Request $request, string $secret): bool
+{
+    $payload = $request->getContent();
+    $computed = base64_encode(hash_hmac('sha256', $payload, $secret, true));
+    return hash_equals($computed, $signature);
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- TIMESTAMP VALIDATION -->
+    <!-- ============================================ -->
+    <section id="timestamp-validation">
+        <h2>8. Timestamp Validation</h2>
+        <p>Protects against replay attacks by rejecting webhooks with timestamps outside the configured tolerance window.</p>
+        <pre><code>// src/Inbound/Pipeline/Authenticator.php
+private function verifyTimestamp(Request $request, WebhookProviderContract $provider): void
+{
+    $timestamp = $provider->getTimestampFromRequest($request);
+    if ($timestamp === null) return;
+
+    $tolerance = config('mts-webhooks.security.timestamp_tolerance', 300);
+    $diff = abs(time() - $timestamp);
+
+    if ($diff > $tolerance) {
+        throw new ReplayAttackException(
+            'Webhook timestamp is outside the allowed tolerance window. '
+            . 'Diff: ' . $diff . 's, Tolerance: ' . $tolerance . 's'
+        );
+    }
+}</code></pre>
+
+        <div class="info-box warning">
+            <div class="info-box-title">Configuration</div>
+            <p>Set <code>MTS_WEBHOOKS_TIMESTAMP_TOLERANCE</code> in your <code>.env</code> file. Default is <strong>300 seconds</strong> (5 minutes). Set to <code>0</code> to disable timestamp validation.</p>
+        </div>
+
+        <h3>Timestamp Sources by Provider</h3>
+        <table>
+            <tr><th>Provider</th><th>Header</th><th>Format</th></tr>
+            <tr><td>Stripe</td><td><code>Stripe-Signature</code></td><td><code>t=1234567890,v1=...</code></td></tr>
+            <tr><td>Razorpay</td><td><code>X-Webhook-Timestamp</code></td><td>Unix timestamp</td></tr>
+            <tr><td>Shopify</td><td><code>X-Webhook-Timestamp</code></td><td>Unix timestamp</td></tr>
+            <tr><td>Generic</td><td><code>X-Webhook-Timestamp</code></td><td>Unix timestamp</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- IP RESTRICTIONS -->
+    <!-- ============================================ -->
+    <section id="ip-restrictions">
+        <h2>9. IP Restrictions</h2>
+        <p>Restrict incoming webhooks to known provider IP addresses. Configured in <code>config/mts-webhooks.php</code>:</p>
+        <pre><code>'security' => [
+    'ip_restrictions' => [
+        '54.187.174.169',   // Stripe
+        '54.187.205.235',   // Stripe
+        // Add provider IPs here
+    ],
+],</code></pre>
+        <p>An empty array (default) disables IP restrictions. Also available as middleware:</p>
+        <pre><code>// routes/webhooks.php
+Route::post('/{provider}', [WebhookController::class, 'handle'])
+    ->middleware('mts.webhook.ip');</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- IDEMPOTENCY -->
+    <!-- ============================================ -->
+    <section id="idempotency">
+        <h2>10. Idempotency &amp; Deduplication</h2>
+        <p>Prevents duplicate webhook processing via a database-level unique index on <code>idempotency_key</code>.</p>
+
+        <h3>How It Works</h3>
+        <ol>
+            <li>Each webhook receives an <code>idempotency_key</code> from the provider (event ID, entity ID, or custom header)</li>
+            <li>The key is stored with a <code>UNIQUE</code> index in the <code>mts_webhooks</code> table</li>
+            <li>Before processing, the <code>Deduplicator</code> checks for existing records with the same key</li>
+            <li>If a duplicate is found, a <code>DuplicateWebhookException</code> is thrown and the webhook returns <code>200 OK</code> (idempotent response)</li>
+        </ol>
+
+        <h3>Idempotency Key Sources by Provider</h3>
+        <table>
+            <tr><th>Provider</th><th>Key Source</th><th>Example</th></tr>
+            <tr><td>Stripe</td><td><code>payload.id</code></td><td><code>evt_1234567890</code></td></tr>
+            <tr><td>Razorpay</td><td><code>payload.payload.payment.entity.id</code></td><td><code>pay_1234567890</code></td></tr>
+            <tr><td>Shopify</td><td><code>X-Shopify-Webhook-Id</code> header</td><td><code>abc123...</code></td></tr>
+            <tr><td>Magento</td><td><code>X-Magento-Webhook-Id</code> header</td><td><code>webhook_123</code></td></tr>
+            <tr><td>Generic</td><td><code>X-Webhook-Id</code> header or <code>payload.id</code></td><td>Any unique string</td></tr>
+        </table>
+
+        <h3>Deduplicator Source</h3>
+        <pre><code>// src/Inbound/Pipeline/Deduplicator.php
+public function ensureUnique(Webhook $webhook): void
+{
+    $idempotencyKey = $webhook->idempotency_key;
+    if ($idempotencyKey === null) return;
+
+    DB::transaction(function () use ($idempotencyKey, $webhook) {
+        $existing = Webhook::where('idempotency_key', $idempotencyKey)
+            ->where('id', '!=', $webhook->id)
+            ->lockForUpdate()
+            ->first();
+
+        if ($existing !== null) {
+            throw new DuplicateWebhookException(
+                'Duplicate webhook detected with idempotency key: ' . $idempotencyKey
+            );
+        }
+    });
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- HANDLERS -->
+    <!-- ============================================ -->
+    <section id="handlers">
+        <h2>11. Event Handlers</h2>
+        <p>Handlers are classes that process webhook events. They must implement the <code>WebhookHandlerContract</code> interface.</p>
+
+        <h3>Handler Contract</h3>
+        <pre><code>// src/Contracts/WebhookHandlerContract.php
+interface WebhookHandlerContract
+{
+    public function handle(
+        array $payload,
+        array $headers,
+        string $event,
+        string $provider
+    ): void;
+}</code></pre>
+
+        <h3>Example Handler</h3>
+        <pre><code>namespace App\Handlers;
+
+use MageTech\Webhooks\Contracts\WebhookHandlerContract;
+
+class PaymentSucceeded implements WebhookHandlerContract
+{
+    public function handle(array $payload, array $headers, string $event, string $provider): void
+    {
+        $paymentId = $payload['id'];
+        $amount = $payload['amount'];
+
+        // Update order status
+        Order::where('payment_id', $paymentId)->update([
+            'status' => 'paid',
+            'paid_amount' => $amount,
+        ]);
+
+        // Send confirmation email
+        Mail::to($payload['customer_email'])->send(new PaymentConfirmation($paymentId));
+    }
+}</code></pre>
+
+        <h3>Handler Map Configuration</h3>
+        <pre><code>// config/mts-webhooks.php
+'processing' => [
+    'handler_map' => [
+        // Global events (any provider)
+        'payment_intent.succeeded' => App\Handlers\PaymentSucceeded::class,
+        'order.created'            => App\Handlers\OrderCreated::class,
+
+        // Provider-specific events (provider.event format)
+        'stripe.checkout.session.completed' => App\Handlers\CheckoutCompleted::class,
+        'razorpay.payment.captured'          => App\Handlers\RazorpayPayment::class,
+    ],
+],</code></pre>
+
+        <div class="info-box">
+            <div class="info-box-title">Handler Resolution</div>
+            <p>The <code>Processor</code> first checks for <code>provider.event</code> in the handler map. If not found, it checks for just <code>event</code>. If no handler is registered, the webhook is marked as processed (no-op).</p>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- RETRY MECHANISM -->
+    <!-- ============================================ -->
+    <section id="retry-mechanism">
+        <h2>12. Retry Mechanism</h2>
+        <p>Failed webhooks are automatically retried using <strong>exponential backoff with jitter</strong>.</p>
+
+        <h3>Retry Formula</h3>
+        <pre><code>delay = min(baseDelay &times; multiplier^attempt, maxDelay) + jitter
+
+Where:
+  baseDelay          = 60 seconds (configurable)
+  multiplier         = 2 (configurable)
+  maxDelay           = 3600 seconds (configurable)
+  jitter             = random(&plusmn;10%)</code></pre>
+
+        <h3>Retry Schedule Example</h3>
+        <table>
+            <tr><th>Attempt</th><th>Base Delay</th><th>With Backoff</th><th>Cumulative Wait</th></tr>
+            <tr><td>1</td><td>60s</td><td>~60s</td><td>1 min</td></tr>
+            <tr><td>2</td><td>60s</td><td>~120s</td><td>3 min</td></tr>
+            <tr><td>3</td><td>60s</td><td>~240s</td><td>7 min</td></tr>
+            <tr><td>4</td><td>60s</td><td>~480s</td><td>15 min</td></tr>
+            <tr><td>5</td><td>60s</td><td>~960s</td><td>31 min</td></tr>
+        </table>
+
+        <h3>Retry Configuration</h3>
+        <pre><code>// config/mts-webhooks.php
+'retry' => [
+    'max_attempts'        => env('MTS_WEBHOOKS_MAX_ATTEMPTS', 5),
+    'base_delay'          => env('MTS_WEBHOOKS_BASE_DELAY', 60),
+    'max_delay'           => env('MTS_WEBHOOKS_MAX_DELAY', 3600),
+    'backoff_multiplier'  => env('MTS_WEBHOOKS_BACKOFF_MULTIPLIER', 2),
+    'retryable_exceptions' => [],
+],</code></pre>
+
+        <h3>Retry Strategy Source</h3>
+        <pre><code>// src/Support/RetryStrategy.php
+public function calculateNextRetry(
+    int $attempt,
+    int $baseDelay = 60,
+    int $maxDelay = 3600,
+    float $multiplier = 2.0,
+): Carbon {
+    $delay = $baseDelay * pow($multiplier, $attempt - 1);
+    $delay = min($delay, $maxDelay);
+    $jitter = $delay * (mt_rand(-10, 10) / 100);
+    $delay = max(1, $delay + $jitter);
+    return Carbon::now()->addSeconds((int) $delay);
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- DEAD LETTER -->
+    <!-- ============================================ -->
+    <section id="dead-letter">
+        <h2>13. Dead Letter Queue</h2>
+        <p>When all retry attempts are exhausted, the webhook is moved to <strong>dead letter</strong> status. This is a terminal state that preserves the webhook for investigation.</p>
+
+        <h3>Dead Letter Flow</h3>
+        <pre><code>// src/Inbound/Pipeline/DeadLetterHandler.php
+public function handle(Webhook $webhook, \Throwable $exception): void
+{
+    $webhook->markAsDead($exception->getMessage());
+
+    app(Persister::class)->recordAttempt(
+        webhook: $webhook,
+        attemptNumber: $webhook->attempts,
+        status: 'failed',
+        error: 'Dead letter: ' . $exception->getMessage(),
+    );
+
+    // Dispatch Laravel event for monitoring
+    Event::dispatch(new WebhookDeadLettered($webhook));
+
+    // Dispatch custom event if configured
+    $customEventClass = config('mts-webhooks.dead_letter.event');
+    if ($customEventClass !== null) {
+        Event::dispatch(new $customEventClass($webhook));
+    }
+}</code></pre>
+
+        <h3>Monitoring Dead Letters</h3>
+        <pre><code>use MageTech\Webhooks\Events\WebhookDeadLettered;
+
+// In EventServiceProvider or a listener
+Event::listen(WebhookDeadLettered::class, function (WebhookDeadLettered $event) {
+    $webhook = $event->webhook;
+
+    // Send alert to Slack, email, or monitoring system
+    Alert::webhookFailed($webhook->provider, $webhook->event, $webhook->error);
+
+    // Log to error tracking service
+    Log::error('Webhook dead letter', [
+        'id'         => $webhook->id,
+        'provider'   => $webhook->provider,
+        'event'      => $webhook->event,
+        'attempts'   => $webhook->attempts,
+        'error'      => $webhook->error,
+    ]);
+});</code></pre>
+
+        <h3>Replaying Dead-Lettered Webhooks</h3>
+        <pre><code># Replay a single webhook
+php artisan mts:webhook:replay 42
+
+# Replay all failed/dead webhooks from a provider
+php artisan mts:webhook:replay --provider=stripe
+
+# Replay with date filter
+php artisan mts:webhook:replay --from=2026-01-01 --to=2026-01-31
+
+# Dry run (preview only)
+php artisan mts:webhook:replay --dry-run</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SENSITIVE DATA -->
+    <!-- ============================================ -->
+    <section id="sensitive-data">
+        <h2>14. Sensitive Data Masking</h2>
+        <p>All webhook payloads are automatically masked before database storage. Sensitive fields are configured in the config file.</p>
+
+        <h3>Default Masked Fields</h3>
+        <pre><code>// config/mts-webhooks.php
+'security' => [
+    'mask_sensitive_fields' => [
+        'password',
+        'token',
+        'authorization',
+        'secret',
+        'card_number',
+        'cvv',
+        'ssn',
+        'api_key',
+        'private_key',
+    ],
+],</code></pre>
+
+        <h3>Masking Behavior</h3>
+        <pre><code>// src/Support/SensitiveDataMasker.php
+private function maskValue(string $value): string
+{
+    $length = strlen($value);
+    if ($length <= 4) return str_repeat('*', $length);
+
+    $visibleChars = min(4, (int) ceil($length * 0.2));
+    $maskedPart = str_repeat('*', $length - $visibleChars);
+    return substr($value, 0, $visibleChars) . $maskedPart;
+}
+
+// Example:
+// "secret123"        → "secr*******"
+// "abc-def-ghi-jkl"  → "abc-********"
+// "4111111111111111"  → "4111**************"
+// "ab"               → "**"</code></pre>
+
+        <div class="info-box warning">
+            <div class="info-box-title">Headers Are Also Sanitized</div>
+            <p>The <code>Persister</code> automatically redacts sensitive HTTP headers: <code>authorization</code>, <code>cookie</code>, <code>set-cookie</code>, <code>x-api-key</code>.</p>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- OUTBOUND WEBHOOKS -->
+    <!-- ============================================ -->
+    <section id="outbound-sending">
+        <h2>15. Outbound Webhooks</h2>
+        <p>Send webhooks from your Laravel application using a fluent builder API. Supports both synchronous and queued delivery.</p>
+
+        <h3>Fluent Builder API</h3>
+        <pre><code>use MageTech\Webhooks\Support\Facades\Webhook;
+
+// Synchronous delivery (blocks until delivered)
+$delivery = Webhook::send('order.created')
+    ->to('https://partner.example.com/webhook')
+    ->payload([
+        'order_id' => $order->id,
+        'total'    => $order->total,
+        'status'   => $order->status,
+    ])
+    ->signWith('my-webhook-secret')
+    ->withHeaders(['X-Custom-Header' => 'value'])
+    ->maxAttempts(3)
+    ->now();
+
+// Queued delivery (non-blocking)
+$delivery = Webhook::send('payment.completed')
+    ->to('https://api.example.com/payments/webhook')
+    ->payload($payment)
+    ->signWith($secret)
+    ->queue();  // or ->queue('webhooks')</code></pre>
+
+        <h3>Available Methods</h3>
+        <table>
+            <tr><th>Method</th><th>Required</th><th>Description</th></tr>
+            <tr><td><code>send(string $eventName)</code></td><td>Yes</td><td>Set the event name (e.g., <code>order.created</code>)</td></tr>
+            <tr><td><code>to(string $url)</code></td><td>Yes</td><td>Target URL to deliver the webhook</td></tr>
+            <tr><td><code>payload(array|object $data)</code></td><td>No</td><td>Event data (objects are cast to arrays)</td></tr>
+            <tr><td><code>signWith(string $secret)</code></td><td>No</td><td>HMAC-SHA256 signing secret</td></tr>
+            <tr><td><code>withHeaders(array $headers)</code></td><td>No</td><td>Additional HTTP headers</td></tr>
+            <tr><td><code>maxAttempts(int $n)</code></td><td>No</td><td>Max delivery attempts (default: 5)</td></tr>
+            <tr><td><code>queue(?string $queue)</code></td><td>&mdash;</td><td>Dispatch to queue</td></tr>
+            <tr><td><code>now()</code></td><td>&mdash;</td><td>Deliver synchronously</td></tr>
+        </table>
+    </section>
+
+    <section id="outbound-signing">
+        <h2>16. Outbound Request Signing</h2>
+        <p>When you call <code>signWith($secret)</code>, three headers are added to the outgoing request:</p>
+        <pre><code>// src/Outbound/Signer.php
+public function generateHeader(string $payload, string $secret): array
+{
+    return [
+        'X-Webhook-Signature'     => hash_hmac('sha256', $payload, $secret),
+        'X-Webhook-Timestamp'     => (string) time(),
+        'X-Webhook-Signed-Payload' => hash('sha256', $payload),
+    ];
+}</code></pre>
+
+        <h3>Verifying Outbound Signatures (Receiver Side)</h3>
+        <pre><code>$signature = $request->header('X-Webhook-Signature');
+$timestamp = $request->header('X-Webhook-Timestamp');
+$payload = $request->getContent();
+
+$expected = hash_hmac('sha256', $payload, $yourSecret);
+$valid = hash_equals($expected, $signature);</code></pre>
+    </section>
+
+    <section id="outbound-tracking">
+        <h2>17. Delivery Tracking</h2>
+        <p>Every outbound webhook creates a <code>mts_webhook_deliveries</code> record with full lifecycle tracking.</p>
+        <pre><code>use MageTech\Webhooks\Models\WebhookDelivery;
+
+// Check delivery status
+$delivery = WebhookDelivery::find(1);
+echo $delivery->status;          // pending, success, failed, dead
+echo $delivery->attempts;        // 3
+echo $delivery->response_code;   // 200
+echo $delivery->delivered_at;    // 2026-01-15 10:30:00
+
+// Query deliveries
+$failed = WebhookDelivery::whereStatus('failed')->get();
+$recent = WebhookDelivery::where('created_at', '>=', now()->subDays(7))->get();</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PROVIDERS -->
+    <!-- ============================================ -->
+    <section id="providers-overview">
+        <h2>18. Provider Support</h2>
+        <p>Each provider implements <code>WebhookProviderContract</code> with its own signature verification, event extraction, and idempotency key logic.</p>
+
+        <table>
+            <tr><th>Provider</th><th>Signature Header</th><th>Verification Method</th><th>Event Source</th><th>ID Key</th></tr>
+            <tr><td>Stripe</td><td><code>Stripe-Signature</code></td><td>Timestamped HMAC-SHA256</td><td><code>payload.type</code></td><td><code>payload.id</code></td></tr>
+            <tr><td>Razorpay</td><td><code>X-Razorpay-Signature</code></td><td>HMAC-SHA256</td><td><code>payload.payload.payment.entity.event</code></td><td><code>payload.payload.payment.entity.id</code></td></tr>
+            <tr><td>Shopify</td><td><code>X-Shopify-Hmac-Sha256</code></td><td>Base64 HMAC-SHA256</td><td><code>X-Shopify-Topic</code> header</td><td><code>X-Shopify-Webhook-Id</code> header</td></tr>
+            <tr><td>Magento</td><td><code>X-Magento-Webhook-Signature</code></td><td>HMAC-SHA256</td><td><code>X-Magento-Event</code> header</td><td><code>X-Magento-Webhook-Id</code> header</td></tr>
+            <tr><td>Generic</td><td><code>X-Webhook-Signature</code></td><td>HMAC-SHA256</td><td><code>X-Webhook-Event</code> header or <code>payload.event</code></td><td><code>X-Webhook-Id</code> header or <code>payload.id</code></td></tr>
+        </table>
+    </section>
+
+    <section id="stripe-provider">
+        <h3>Stripe Provider</h3>
+        <p>Stripe uses a timestamped signature format. The <code>Stripe-Signature</code> header contains <code>t=timestamp,v1=signature</code> pairs.</p>
+        <pre><code>// Stripe sends:
+// Stripe-Signature: t=1234567890,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd
+
+// The package:
+// 1. Extracts timestamp (t) and signature (v1)
+// 2. Signs: timestamp + "." + payload
+// 3. Verifies HMAC-SHA256 with your webhook secret</code></pre>
+        <pre><code># .env
+STRIPE_WEBHOOK_SECRET=whsec_your_secret_here</code></pre>
+    </section>
+
+    <section id="razorpay-provider">
+        <h3>Razorpay Provider</h3>
+        <p>Razorpay uses standard HMAC-SHA256 over the raw request body.</p>
+        <pre><code># .env
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_secret</code></pre>
+    </section>
+
+    <section id="shopify-provider">
+        <h3>Shopify Provider</h3>
+        <p>Shopify uses base64-encoded HMAC-SHA256 and sends the event topic in the <code>X-Shopify-Topic</code> header (e.g., <code>orders/create</code>).</p>
+        <pre><code># .env
+SHOPIFY_WEBHOOK_SECRET=your_shopify_secret</code></pre>
+    </section>
+
+    <section id="magento-provider">
+        <h3>Magento Provider</h3>
+        <p>Magento uses HMAC-SHA256 with event and webhook ID in custom headers.</p>
+        <pre><code># .env
+MAGENTO_WEBHOOK_SECRET=your_magento_secret</code></pre>
+    </section>
+
+    <section id="custom-provider">
+        <h3>Custom / Generic Provider</h3>
+        <p>For any provider not listed above. Uses <code>X-Webhook-Signature</code>, <code>X-Webhook-Event</code>, and <code>X-Webhook-Id</code> headers.</p>
+        <pre><code># .env
+MTS_WEBHOOKS_GENERIC_SECRET=your_generic_secret</code></pre>
+
+        <h3>Creating a Custom Provider</h3>
+        <pre><code>namespace App\Webhooks\Providers;
+
+use MageTech\Webhooks\Inbound\Providers\AbstractProvider;
+
+class SalesforceProvider extends AbstractProvider
+{
+    public function name(): string
+    {
+        return 'salesforce';
+    }
+
+    public function getSignatureHeader(): string
+    {
+        return 'X-Salesforce-Signature';
+    }
+
+    public function extractEventName(Request $request): ?string
+    {
+        return $request->header('X-Salesforce-Event');
+    }
+
+    public function extractIdempotencyKey(Request $request, array $payload): ?string
+    {
+        return $payload['event_id'] ?? $request->header('X-Salesforce-Event-Id');
+    }
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURATION -->
+    <!-- ============================================ -->
+    <section id="configuration">
+        <h2>19. Configuration Reference</h2>
+        <p>All configuration is in <code>config/mts-webhooks.php</code>. Publish it with:</p>
+        <pre><code>php artisan vendor:publish --tag=mts-webhooks-config</code></pre>
+
+        <h3>Complete Configuration</h3>
+        <table>
+            <tr><th>Key</th><th>Default</th><th>Env Variable</th><th>Description</th></tr>
+            <tr><td><code>inbound.enabled</code></td><td><code>true</code></td><td><code>MTS_WEBHOOKS_INBOUND_ENABLED</code></td><td>Enable/disable inbound webhook routes</td></tr>
+            <tr><td><code>inbound.route_prefix</code></td><td><code>webhooks</code></td><td><code>MTS_WEBHOOKS_ROUTE_PREFIX</code></td><td>URL prefix for inbound routes</td></tr>
+            <tr><td><code>inbound.middleware</code></td><td><code>['web']</code></td><td>&mdash;</td><td>Middleware for the route group</td></tr>
+            <tr><td><code>inbound.route_middleware</code></td><td><code>[]</code></td><td>&mdash;</td><td>Additional route-level middleware</td></tr>
+            <tr><td><code>providers.{name}.secret</code></td><td>null</td><td>Per-provider</td><td>HMAC signing secret</td></tr>
+            <tr><td><code>providers.{name}.signature_header</code></td><td>varies</td><td>&mdash;</td><td>HTTP header containing signature</td></tr>
+            <tr><td><code>providers.{name}.timestamp_tolerance</code></td><td><code>300</code></td><td>&mdash;</td><td>Seconds of tolerance for timestamps</td></tr>
+            <tr><td><code>security.verify_hmac</code></td><td><code>true</code></td><td><code>MTS_WEBHOOKS_VERIFY_HMAC</code></td><td>Enable HMAC verification</td></tr>
+            <tr><td><code>security.verify_timestamp</code></td><td><code>true</code></td><td><code>MTS_WEBHOOKS_VERIFY_TIMESTAMP</code></td><td>Enable timestamp validation</td></tr>
+            <tr><td><code>security.timestamp_tolerance</code></td><td><code>300</code></td><td><code>MTS_WEBHOOKS_TIMESTAMP_TOLERANCE</code></td><td>Default tolerance in seconds</td></tr>
+            <tr><td><code>security.ip_restrictions</code></td><td><code>[]</code></td><td>&mdash;</td><td>Allowed IP addresses (empty = no restriction)</td></tr>
+            <tr><td><code>security.mask_sensitive_fields</code></td><td>9 fields</td><td>&mdash;</td><td>Field names to mask before storage</td></tr>
+            <tr><td><code>processing.queue</code></td><td><code>default</code></td><td><code>MTS_WEBHOOKS_QUEUE</code></td><td>Queue name for inbound processing</td></tr>
+            <tr><td><code>processing.connection</code></td><td>null</td><td><code>MTS_WEBHOOKS_CONNECTION</code></td><td>Queue connection name</td></tr>
+            <tr><td><code>processing.timeout</code></td><td><code>30</code></td><td><code>MTS_WEBHOOKS_TIMEOUT</code></td><td>Job timeout in seconds</td></tr>
+            <tr><td><code>processing.handler_map</code></td><td><code>[]</code></td><td>&mdash;</td><td>Event-to-handler class mapping</td></tr>
+            <tr><td><code>retry.max_attempts</code></td><td><code>5</code></td><td><code>MTS_WEBHOOKS_MAX_ATTEMPTS</code></td><td>Maximum retry attempts</td></tr>
+            <tr><td><code>retry.base_delay</code></td><td><code>60</code></td><td><code>MTS_WEBHOOKS_BASE_DELAY</code></td><td>Base delay in seconds</td></tr>
+            <tr><td><code>retry.max_delay</code></td><td><code>3600</code></td><td><code>MTS_WEBHOOKS_MAX_DELAY</code></td><td>Maximum delay cap in seconds</td></tr>
+            <tr><td><code>retry.backoff_multiplier</code></td><td><code>2</code></td><td><code>MTS_WEBHOOKS_BACKOFF_MULTIPLIER</code></td><td>Exponential backoff multiplier</td></tr>
+            <tr><td><code>dead_letter.enabled</code></td><td><code>true</code></td><td><code>MTS_WEBHOOKS_DEAD_LETTER_ENABLED</code></td><td>Enable dead letter queue</td></tr>
+            <tr><td><code>dead_letter.event</code></td><td>null</td><td>&mdash;</td><td>Custom event class for dead letters</td></tr>
+            <tr><td><code>pruning.enabled</code></td><td><code>false</code></td><td><code>MTS_WEBHOOKS_PRUNING_ENABLED</code></td><td>Enable auto-pruning</td></tr>
+            <tr><td><code>pruning.retain_days</code></td><td><code>90</code></td><td><code>MTS_WEBHOOKS_RETAIN_DAYS</code></td><td>Days to retain webhook records</td></tr>
+            <tr><td><code>outbound.timeout</code></td><td><code>30</code></td><td><code>MTS_WEBHOOKS_OUTBOUND_TIMEOUT</code></td><td>HTTP timeout for outbound</td></tr>
+            <tr><td><code>outbound.queue</code></td><td><code>default</code></td><td><code>MTS_WEBHOOKS_OUTBOUND_QUEUE</code></td><td>Queue for outbound jobs</td></tr>
+            <tr><td><code>outbound.default_max_attempts</code></td><td><code>5</code></td><td><code>MTS_WEBHOOKS_OUTBOUND_MAX_ATTEMPTS</code></td><td>Max outbound delivery attempts</td></tr>
+            <tr><td><code>outbound.retry_delay</code></td><td><code>60</code></td><td><code>MTS_WEBHOOKS_OUTBOUND_RETRY_DELAY</code></td><td>Outbound retry delay in seconds</td></tr>
+            <tr><td><code>logging.enabled</code></td><td><code>true</code></td><td><code>MTS_WEBHOOKS_LOGGING</code></td><td>Enable webhook logging</td></tr>
+            <tr><td><code>logging.log_payloads</code></td><td><code>false</code></td><td><code>MTS_WEBHOOKS_LOG_PAYLOADS</code></td><td>Log full payload contents</td></tr>
+            <tr><td><code>logging.log_level</code></td><td><code>info</code></td><td><code>MTS_WEBHOOKS_LOG_LEVEL</code></td><td>Log level for webhook events</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- DATABASE -->
+    <!-- ============================================ -->
+    <section id="database">
+        <h2>20. Database Schema</h2>
+
+        <h3>mts_webhooks</h3>
+        <p>Stores every inbound webhook event with full metadata.</p>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Description</th></tr>
+            <tr><td><code>id</code></td><td>bigint PK</td><td>No</td><td>auto</td><td>Unique identifier</td></tr>
+            <tr><td><code>provider</code></td><td>string</td><td>No</td><td>&mdash;</td><td>Provider name (stripe, razorpay, etc.)</td></tr>
+            <tr><td><code>event</code></td><td>string</td><td>No</td><td>&mdash;</td><td>Event type name</td></tr>
+            <tr><td><code>signature</code></td><td>text</td><td>Yes</td><td>null</td><td>Raw signature from provider</td></tr>
+            <tr><td><code>payload</code></td><td>json</td><td>No</td><td>&mdash;</td><td>Full request body (masked)</td></tr>
+            <tr><td><code>headers</code></td><td>json</td><td>No</td><td>&mdash;</td><td>Request headers (sanitized)</td></tr>
+            <tr><td><code>status</code></td><td>string</td><td>No</td><td><code>pending</code></td><td>pending, processing, processed, failed, dead</td></tr>
+            <tr><td><code>attempts</code></td><td>unsigned int</td><td>No</td><td>0</td><td>Number of processing attempts</td></tr>
+            <tr><td><code>max_attempts</code></td><td>unsigned int</td><td>No</td><td>3</td><td>Maximum allowed attempts</td></tr>
+            <tr><td><code>idempotency_key</code></td><td>string</td><td>Yes</td><td>null</td><td>Unique deduplication key</td></tr>
+            <tr><td><code>request_id</code></td><td>string</td><td>Yes</td><td>null</td><td>External request identifier</td></tr>
+            <tr><td><code>source_ip</code></td><td>string</td><td>Yes</td><td>null</td><td>Client IP address</td></tr>
+            <tr><td><code>processed_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>When processing completed</td></tr>
+            <tr><td><code>failed_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>When processing failed</td></tr>
+            <tr><td><code>dead_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>When moved to dead letter</td></tr>
+            <tr><td><code>error</code></td><td>text</td><td>Yes</td><td>null</td><td>Last error message</td></tr>
+            <tr><td><code>next_retry_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>Scheduled retry time</td></tr>
+            <tr><td><code>created_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>Record creation time</td></tr>
+            <tr><td><code>updated_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>Last update time</td></tr>
+            <tr><td><code>deleted_at</code></td><td>timestamp</td><td>Yes</td><td>null</td><td>Soft delete timestamp</td></tr>
+        </table>
+
+        <h3>mts_webhook_attempts</h3>
+        <p>Records every processing attempt for audit trail.</p>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+            <tr><td><code>id</code></td><td>bigint PK</td><td>Unique identifier</td></tr>
+            <tr><td><code>webhook_id</code></td><td>FK → mts_webhooks</td><td>Parent webhook (cascade delete)</td></tr>
+            <tr><td><code>attempt_number</code></td><td>unsigned int</td><td>Sequential attempt number</td></tr>
+            <tr><td><code>status</code></td><td>string</td><td><code>success</code> or <code>failed</code></td></tr>
+            <tr><td><code>payload</code></td><td>json</td><td>Payload snapshot at attempt time</td></tr>
+            <tr><td><code>error</code></td><td>text</td><td>Error message if failed</td></tr>
+            <tr><td><code>duration_ms</code></td><td>unsigned int</td><td>Processing time in milliseconds</td></tr>
+            <tr><td><code>created_at</code></td><td>timestamp</td><td>Attempt timestamp</td></tr>
+            <tr><td><code>updated_at</code></td><td>timestamp</td><td>Last update time</td></tr>
+        </table>
+
+        <h3>mts_webhook_deliveries</h3>
+        <p>Tracks outbound webhook delivery attempts.</p>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+            <tr><td><code>id</code></td><td>bigint PK</td><td>Unique identifier</td></tr>
+            <tr><td><code>event_name</code></td><td>string</td><td>Event name (e.g., order.created)</td></tr>
+            <tr><td><code>url</code></td><td>string</td><td>Target URL</td></tr>
+            <tr><td><code>payload</code></td><td>json</td><td>Sent payload</td></tr>
+            <tr><td><code>headers</code></td><td>json</td><td>Sent headers (including signatures)</td></tr>
+            <tr><td><code>status</code></td><td>string</td><td>pending, success, failed, dead</td></tr>
+            <tr><td><code>attempts</code></td><td>unsigned int</td><td>Delivery attempt count</td></tr>
+            <tr><td><code>max_attempts</code></td><td>unsigned int</td><td>Maximum delivery attempts</td></tr>
+            <tr><td><code>response_code</code></td><td>unsigned int</td><td>HTTP response code</td></tr>
+            <tr><td><code>response_body</code></td><td>text</td><td>HTTP response body</td></tr>
+            <tr><td><code>error</code></td><td>text</td><td>Error message if failed</td></tr>
+            <tr><td><code>next_retry_at</code></td><td>timestamp</td><td>Scheduled retry time</td></tr>
+            <tr><td><code>delivered_at</code></td><td>timestamp</td><td>Successful delivery time</td></tr>
+            <tr><td><code>dead_at</code></td><td>timestamp</td><td>Dead letter time</td></tr>
+            <tr><td><code>created_at</code></td><td>timestamp</td><td>Record creation time</td></tr>
+            <tr><td><code>updated_at</code></td><td>timestamp</td><td>Last update time</td></tr>
+            <tr><td><code>deleted_at</code></td><td>timestamp</td><td>Soft delete timestamp</td></tr>
+        </table>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ARTISAN COMMANDS -->
+    <!-- ============================================ -->
+    <section id="commands">
+        <h2>21. Artisan Commands</h2>
+
+        <table>
+            <tr><th>Command</th><th>Description</th><th>Options</th></tr>
+            <tr><td><code>mts:webhooks:install</code></td><td>Publish config, migrations, and routes</td><td><code>--force</code></td></tr>
+            <tr><td><code>mts:webhook:replay {id?}</code></td><td>Replay failed/dead webhooks</td><td><code>--provider</code>, <code>--event</code>, <code>--from</code>, <code>--to</code>, <code>--dry-run</code></td></tr>
+            <tr><td><code>mts:webhook:retry</code></td><td>Dispatch retry jobs for failed webhooks</td><td><code>--provider</code>, <code>--limit</code></td></tr>
+            <tr><td><code>mts:webhook:prune</code></td><td>Remove old webhook records</td><td><code>--days</code>, <code>--dry-run</code></td></tr>
+            <tr><td><code>mts:webhook:stats</code></td><td>Display webhook statistics</td><td><code>--days</code>, <code>--json</code></td></tr>
+        </table>
+
+        <h3>Replay Examples</h3>
+        <pre><code># Replay a single webhook by ID
+php artisan mts:webhook:replay 42
+
+# Replay all failed Stripe webhooks
+php artisan mts:webhook:replay --provider=stripe
+
+# Replay within date range
+php artisan mts:webhook:replay --from=2026-01-01 --to=2026-01-31
+
+# Preview what would be replayed
+php artisan mts:webhook:replay --dry-run</code></pre>
+
+        <h3>Statistics Output</h3>
+        <pre><code>php artisan mts:webhook:stats --days=30
+
+# Output:
+# Webhook Statistics (last 30 days)
+# --------------------------------------------------
+# Total Received:    1,247
+# Processed:         1,198
+# Failed:            32
+# Dead Lettered:     17
+# Pending:           0
+# Processing:        0
+# Success Rate:      96.07%
+# --------------------------------------------------
+# By Provider:
+#   stripe: 845
+#   razorpay: 234
+#   shopify: 168
+# Top Events:
+#   payment_intent.succeeded: 612
+#   order.created: 389</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- EVENTS -->
+    <!-- ============================================ -->
+    <section id="events-ref">
+        <h2>22. Events</h2>
+        <p>The package dispatches Laravel events at key lifecycle points for monitoring, alerting, and custom logic.</p>
+
+        <h3>Inbound Events</h3>
+        <table>
+            <tr><th>Event</th><th>Dispatched When</th><th>Payload</th></tr>
+            <tr><td><code>WebhookReceived</code></td><td>Webhook persisted to database</td><td><code>Webhook $webhook</code></td></tr>
+            <tr><td><code>WebhookProcessed</code></td><td>Handler executed successfully</td><td><code>Webhook $webhook</code></td></tr>
+            <tr><td><code>WebhookFailed</code></td><td>Handler threw an exception</td><td><code>Webhook $webhook</code>, <code>\Throwable $exception</code></td></tr>
+            <tr><td><code>WebhookDeadLettered</code></td><td>All retries exhausted</td><td><code>Webhook $webhook</code></td></tr>
+            <tr><td><code>WebhookReplayed</code></td><td>Webhook replayed via CLI</td><td><code>Webhook $webhook</code></td></tr>
+        </table>
+
+        <h3>Outbound Events</h3>
+        <table>
+            <tr><th>Event</th><th>Dispatched When</th><th>Payload</th></tr>
+            <tr><td><code>OutboundWebhookSent</code></td><td>Outbound webhook queued</td><td><code>WebhookDelivery $delivery</code></td></tr>
+            <tr><td><code>OutboundWebhookDelivered</code></td><td>Delivery HTTP 2xx response</td><td><code>WebhookDelivery $delivery</code></td></tr>
+            <tr><td><code>OutboundWebhookFailed</code></td><td>Delivery failed</td><td><code>WebhookDelivery $delivery</code>, <code>\Throwable $exception</code></td></tr>
+        </table>
+
+        <h3>Listening to Events</h3>
+        <pre><code>use MageTech\Webhooks\Events\WebhookProcessed;
+use MageTech\Webhooks\Events\WebhookDeadLettered;
+
+// In EventServiceProvider $listen array
+protected $listen = [
+    WebhookProcessed::class => [
+        App\Listeners\LogWebhookProcessed::class,
+    ],
+    WebhookDeadLettered::class => [
+        App\Listeners\AlertDeadLetter::class,
+    ],
+];
+
+// Or inline
+Event::listen(WebhookProcessed::class, function ($event) {
+    Log::info('Webhook processed: ' . $event->webhook->event);
+});</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- MODELS -->
+    <!-- ============================================ -->
+    <section id="models">
+        <h2>23. Models &amp; Scopes</h2>
+
+        <h3>Webhook Model</h3>
+        <pre><code>use MageTech\Webhooks\Models\Webhook;
+
+// Scopes
+Webhook::whereProvider('stripe')->get();
+Webhook::whereEvent('payment_intent.succeeded')->get();
+Webhook::whereStatus('failed')->get();
+Webhook::wherePending()->get();
+Webhook::whereFailed()->get();
+Webhook::whereReadyForRetry()->get();  // Failed + under max attempts + retry time passed
+Webhook::whereRecent(7)->get();         // Last 7 days
+
+// Methods
+$webhook->isActive();       // true if pending or processing
+$webhook->isTerminal();     // true if processed or dead
+$webhook->canRetry();       // true if failed + under max attempts
+$webhook->markAsProcessing();
+$webhook->markAsProcessed();
+$webhook->markAsFailed('error message');
+$webhook->markAsDead('error message');
+$webhook->incrementAttempts();
+$webhook->scheduleRetry(Carbon::now()->addMinutes(5));
+
+// Relationships
+$webhook->attempts;  // HasMany WebhookAttempt</code></pre>
+
+        <h3>WebhookDelivery Model</h3>
+        <pre><code>use MageTech\Webhooks\Models\WebhookDelivery;
+
+WebhookDelivery::whereEventName('order.created')->get();
+WebhookDelivery::whereStatus('failed')->get();
+WebhookDelivery::whereReadyForRetry()->get();
+
+$delivery->markAsSuccess(200, 'OK');
+$delivery->markAsFailed(500, 'Error', 'Server error');
+$delivery->markAsDead('Exhausted retries');
+$delivery->incrementAttempts();
+$delivery->scheduleRetry(Carbon::now()->addMinutes(10));</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- FACADES -->
+    <!-- ============================================ -->
+    <section id="facades">
+        <h2>24. Facades</h2>
+
+        <h3>Webhook Facade (Outbound)</h3>
+        <pre><code>use MageTech\Webhooks\Support\Facades\Webhook;
+
+Webhook::send('order.created')
+    ->to($url)
+    ->payload($data)
+    ->signWith($secret)
+    ->queue();</code></pre>
+
+        <h3>WebhookEvent Facade (Inbound)</h3>
+        <pre><code>use MageTech\Webhooks\Support\Facades\WebhookEvent;
+
+// Query inbound webhooks
+$failed = WebhookEvent::whereFailed()->get();
+$stripe = WebhookEvent::whereProvider('stripe')->whereRecent(30)->get();</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- HELPERS -->
+    <!-- ============================================ -->
+    <section id="helpers">
+        <h2>25. Helper Functions</h2>
+
+        <table>
+            <tr><th>Function</th><th>Returns</th><th>Description</th></tr>
+            <tr><td><code>webhook(string $eventName)</code></td><td><code>Webhook</code></td><td>Shorthand for <code>Webhook::send($eventName)</code></td></tr>
+            <tr><td><code>webhook_mask(array $data)</code></td><td><code>array</code></td><td>Mask sensitive fields in data</td></tr>
+            <tr><td><code>webhook_retry_delay(int $attempt)</code></td><td><code>int</code></td><td>Calculate retry delay for given attempt</td></tr>
+        </table>
+
+        <pre><code>// Using helper functions
+webhook('order.created')
+    ->to('https://example.com/webhook')
+    ->payload($order)
+    ->signWith($secret)
+    ->queue();
+
+// Mask data manually
+$masked = webhook_mask(['password' => 'secret', 'name' => 'John']);
+// ['password' => 'secr*******', 'name' => 'John']
+
+// Calculate retry delay
+$delay = webhook_retry_delay(3);  // Returns 240 (seconds)</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- TESTING -->
+    <!-- ============================================ -->
+    <section id="testing">
+        <h2>26. Testing</h2>
+
+        <h3>Running Tests</h3>
+        <pre><code>composer test              # Run all tests
+composer test-coverage     # Run with coverage report
+composer format            # Format code with Pint
+composer format-test       # Check code style
+composer analyse           # Run PHPStan static analysis</code></pre>
+
+        <h3>Test Structure</h3>
+        <pre><code>tests/
+├── TestCase.php              # Base test case (Orchestra Testbench)
+├── Pest.php                  # Pest configuration
+├── Fixtures/
+│   ├── Order.php             # Test model
+│   └── WebhookTestHandler.php # Test handler
+├── Unit/
+│   ├── Enums/
+│   │   ├── WebhookStatusTest.php
+│   │   ├── DeliveryStatusTest.php
+│   │   └── AttemptStatusTest.php
+│   ├── SensitiveDataMaskerTest.php
+│   ├── RetryStrategyTest.php
+│   ├── SignerTest.php
+│   └── DTOTest.php
+├── Feature/
+│   ├── InboundWebhookTest.php
+│   ├── OutboundWebhookTest.php
+│   ├── SignatureVerificationTest.php
+│   ├── ReplayAttackTest.php
+│   ├── IdempotencyTest.php
+│   ├── IPRestrictionTest.php
+│   ├── SensitiveDataMaskingTest.php
+│   ├── MalformedPayloadTest.php
+│   ├── RetryTest.php
+│   ├── DeadLetterTest.php
+│   ├── QueueFailureTest.php
+│   └── ...
+└── Integration/
+    ├── FullInboundFlowTest.php
+    ├── FullOutboundFlowTest.php
+    └── ReplayWebhookTest.php</code></pre>
+
+        <h3>Writing Custom Tests</h3>
+        <pre><code>use MageTech\Webhooks\Models\Webhook;
+
+it('stores inbound webhook', function () {
+    $response = $this->postJson('/webhooks/generic', [
+        'event' => 'order.created',
+        'data' => ['id' => 1],
+    ]);
+
+    $response->assertOk();
+
+    $this->assertDatabaseHas('mts_webhooks', [
+        'provider' => 'generic',
+        'event' => 'order.created',
+        'status' => 'processed',
+    ]);
+});</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- FILE STRUCTURE -->
+    <!-- ============================================ -->
+    <section id="file-structure">
+        <h2>27. File Structure</h2>
+        <div class="file-tree">
+<span class="dir">packages/webhooks/</span>
+├── <span class="file">composer.json</span>
+├── <span class="file">config/mts-webhooks.php</span>
+├── <span class="file">database/migrations/</span>
+│   ├── <span class="file">2026_01_01_000001_create_mts_webhooks_table.php</span>
+│   ├── <span class="file">2026_01_01_000002_create_mts_webhook_attempts_table.php</span>
+│   └── <span class="file">2026_01_01_000003_create_mts_webhook_deliveries_table.php</span>
+├── <span class="file">routes/webhooks.php</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="file">WebhooksServiceProvider.php</span>
+│   ├── <span class="dir">Concerns/</span>
+│   │   └── <span class="file">HandlesWebhooks.php</span>
+│   ├── <span class="dir">Console/</span>
+│   │   ├── <span class="file">InstallCommand.php</span>
+│   │   ├── <span class="file">PruneWebhooksCommand.php</span>
+│   │   ├── <span class="file">ReplayWebhookCommand.php</span>
+│   │   ├── <span class="file">RetryWebhooksCommand.php</span>
+│   │   └── <span class="file">WebhookStatsCommand.php</span>
+│   ├── <span class="dir">Contracts/</span>
+│   │   ├── <span class="file">WebhookHandlerContract.php</span>
+│   │   └── <span class="file">WebhookProviderContract.php</span>
+│   ├── <span class="dir">DTOs/</span>
+│   │   ├── <span class="file">DeliveryResult.php</span>
+│   │   ├── <span class="file">WebhookPayload.php</span>
+│   │   └── <span class="file">WebhookStats.php</span>
+│   ├── <span class="dir">Enums/</span>
+│   │   ├── <span class="file">AttemptStatus.php</span>
+│   │   ├── <span class="file">DeliveryStatus.php</span>
+│   │   ├── <span class="file">WebhookProvider.php</span>
+│   │   └── <span class="file">WebhookStatus.php</span>
+│   ├── <span class="dir">Events/</span>
+│   │   ├── <span class="file">OutboundWebhookDelivered.php</span>
+│   │   ├── <span class="file">OutboundWebhookFailed.php</span>
+│   │   ├── <span class="file">OutboundWebhookSent.php</span>
+│   │   ├── <span class="file">WebhookDeadLettered.php</span>
+│   │   ├── <span class="file">WebhookFailed.php</span>
+│   │   ├── <span class="file">WebhookProcessed.php</span>
+│   │   ├── <span class="file">WebhookReceived.php</span>
+│   │   └── <span class="file">WebhookReplayed.php</span>
+│   ├── <span class="dir">Exceptions/</span>
+│   │   ├── <span class="file">DuplicateWebhookException.php</span>
+│   │   ├── <span class="file">InvalidPayloadException.php</span>
+│   │   ├── <span class="file">ReplayAttackException.php</span>
+│   │   ├── <span class="file">SignatureVerificationException.php</span>
+│   │   ├── <span class="file">WebhookException.php</span>
+│   │   └── <span class="file">WebhookTimeoutException.php</span>
+│   ├── <span class="dir">Http/</span>
+│   │   ├── <span class="dir">Controllers/</span>
+│   │   │   └── <span class="file">WebhookController.php</span>
+│   │   └── <span class="dir">Middleware/</span>
+│   │       └── <span class="file">VerifyWebhookIp.php</span>
+│   ├── <span class="dir">Inbound/</span>
+│   │   ├── <span class="dir">Pipeline/</span>
+│   │   │   ├── <span class="file">Authenticator.php</span>
+│   │   │   ├── <span class="file">DeadLetterHandler.php</span>
+│   │   │   ├── <span class="file">Deduplicator.php</span>
+│   │   │   ├── <span class="file">Persister.php</span>
+│   │   │   ├── <span class="file">Processor.php</span>
+│   │   │   ├── <span class="file">Retrier.php</span>
+│   │   │   ├── <span class="file">Validator.php</span>
+│   │   │   └── <span class="file">WebhookPipeline.php</span>
+│   │   └── <span class="dir">Providers/</span>
+│   │       ├── <span class="file">AbstractProvider.php</span>
+│   │       ├── <span class="file">GenericProvider.php</span>
+│   │       ├── <span class="file">MagentoProvider.php</span>
+│   │       ├── <span class="file">RazorpayProvider.php</span>
+│   │       ├── <span class="file">ShopifyProvider.php</span>
+│   │       └── <span class="file">StripeProvider.php</span>
+│   ├── <span class="dir">Jobs/</span>
+│   │   ├── <span class="file">DeliverOutboundWebhookJob.php</span>
+│   │   ├── <span class="file">ProcessInboundWebhookJob.php</span>
+│   │   ├── <span class="file">RetryInboundWebhookJob.php</span>
+│   │   └── <span class="file">RetryOutboundWebhookJob.php</span>
+│   ├── <span class="dir">Models/</span>
+│   │   ├── <span class="file">Webhook.php</span>
+│   │   ├── <span class="file">WebhookAttempt.php</span>
+│   │   └── <span class="file">WebhookDelivery.php</span>
+│   ├── <span class="dir">Outbound/</span>
+│   │   ├── <span class="file">DeliveryTracker.php</span>
+│   │   ├── <span class="file">Dispatcher.php</span>
+│   │   ├── <span class="file">Signer.php</span>
+│   │   └── <span class="file">Webhook.php</span>
+│   └── <span class="dir">Support/</span>
+│       ├── <span class="dir">Facades/</span>
+│       │   ├── <span class="file">Webhook.php</span>
+│       │   └── <span class="file">WebhookEvent.php</span>
+│       ├── <span class="file">helpers.php</span>
+│       ├── <span class="file">RetryStrategy.php</span>
+│       └── <span class="file">SensitiveDataMasker.php</span>
+├── <span class="dir">tests/</span>
+│   ├── <span class="file">TestCase.php</span>
+│   ├── <span class="file">Pest.php</span>
+│   ├── <span class="dir">Fixtures/</span>
+│   ├── <span class="dir">Unit/</span>
+│   ├── <span class="dir">Feature/</span>
+│   └── <span class="dir">Integration/</span>
+├── <span class="file">phpunit.xml.dist</span>
+├── <span class="file">phpstan.neon.dist</span>
+├── <span class="file">pint.json</span>
+└── <span class="file">README.md</span>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

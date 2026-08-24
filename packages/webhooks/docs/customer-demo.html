@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTS Laravel Webhook Manager - Enterprise Webhook Infrastructure</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-elevated: #263244;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --border: #334155;
+            --border-light: #475569;
+            --success: #22c55e;
+            --success-bg: rgba(34,197,94,0.08);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245,158,11,0.08);
+            --danger: #ef4444;
+            --danger-bg: rgba(239,68,68,0.08);
+            --info: #3b82f6;
+            --info-bg: rgba(59,130,246,0.08);
+            --purple: #a855f7;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        .top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(15,23,42,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 0; }
+        .top-nav .container { display: flex; align-items: center; justify-content: space-between; }
+        .top-nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .top-nav-logo { width: 36px; height: 36px; background: var(--gradient-1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: white; }
+        .top-nav-text { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+        .top-nav-links { display: flex; gap: 8px; }
+        .top-nav-links a { color: var(--text-muted); text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; }
+        .top-nav-links a:hover { color: var(--text); background: var(--bg-card); }
+        .top-nav-cta { background: var(--primary); color: white !important; padding: 8px 20px !important; }
+        .top-nav-cta:hover { background: var(--primary-dark) !important; }
+
+        /* Hero */
+        .hero { padding: 140px 24px 100px; text-align: center; background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 60%); }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; background: rgba(99,102,241,0.12); color: var(--primary-light); border: 1px solid rgba(99,102,241,0.2); margin-bottom: 24px; }
+        .hero h1 { font-size: 3.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .hero h1 .gradient { background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 620px; margin: 0 auto 36px; }
+        .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--border-light); background: var(--bg-card); }
+        .hero-stats { display: flex; justify-content: center; gap: 48px; margin-top: 56px; }
+        .hero-stat { text-align: center; }
+        .hero-stat-value { font-size: 2rem; font-weight: 800; color: var(--primary-light); }
+        .hero-stat-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+
+        /* Sections */
+        .section { padding: 100px 0; }
+        .section-alt { background: var(--bg-card); }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-header h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; }
+        .section-header p { font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+        .section-label { display: inline-block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary-light); font-weight: 600; margin-bottom: 12px; }
+
+        /* Problem / Solution */
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .compare-card { padding: 36px; border-radius: 16px; }
+        .compare-card.bad { background: var(--danger-bg); border: 1px solid rgba(239,68,68,0.15); }
+        .compare-card.good { background: var(--success-bg); border: 1px solid rgba(34,197,94,0.15); }
+        .compare-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 8px; }
+        .compare-card.bad .compare-label { color: var(--danger); }
+        .compare-card.good .compare-label { color: var(--success); }
+        .compare-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 20px; }
+        .compare-list { list-style: none; }
+        .compare-list li { padding: 8px 0; color: var(--text-muted); display: flex; align-items: flex-start; gap: 10px; font-size: 0.95rem; }
+        .compare-list li .icon { flex-shrink: 0; width: 20px; text-align: center; margin-top: 2px; }
+        .compare-card.bad .icon { color: var(--danger); }
+        .compare-card.good .icon { color: var(--success); }
+
+        /* Pipeline */
+        .pipeline-visual { display: flex; gap: 0; margin: 32px 0; overflow-x: auto; padding-bottom: 8px; }
+        .pipe-step { flex: 1; min-width: 130px; text-align: center; padding: 20px 12px; background: var(--bg-card); border: 1px solid var(--border); position: relative; }
+        .pipe-step:first-child { border-radius: 12px 0 0 12px; }
+        .pipe-step:last-child { border-radius: 0 12px 12px 0; }
+        .pipe-step:not(:last-child)::after { content: '→'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: var(--primary-light); font-size: 1.2rem; z-index: 2; background: var(--bg); width: 20px; text-align: center; }
+        .pipe-num { font-size: 0.65rem; color: var(--primary-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .pipe-name { font-weight: 700; font-size: 0.9rem; margin-top: 4px; }
+        .pipe-desc { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; }
+
+        /* Features Grid */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color 0.2s, transform 0.2s; }
+        .feature-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .feature-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 16px; }
+        .feature-icon.blue { background: rgba(59,130,246,0.12); }
+        .feature-icon.green { background: rgba(34,197,94,0.12); }
+        .feature-icon.purple { background: rgba(168,85,247,0.12); }
+        .feature-icon.yellow { background: rgba(245,158,11,0.12); }
+        .feature-icon.red { background: rgba(239,68,68,0.12); }
+        .feature-icon.pink { background: rgba(236,72,153,0.12); }
+        .feature-icon.cyan { background: rgba(6,182,212,0.12); }
+        .feature-icon.orange { background: rgba(249,115,22,0.12); }
+        .feature-icon.indigo { background: rgba(99,102,241,0.12); }
+        .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { color: var(--text-muted); font-size: 0.92rem; }
+
+        /* Use Cases */
+        .usecases-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .usecase-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; transition: border-color 0.2s; }
+        .usecase-card:hover { border-color: var(--primary); }
+        .usecase-emoji { font-size: 2rem; margin-bottom: 10px; }
+        .usecase-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .usecase-card p { font-size: 0.82rem; color: var(--text-dim); }
+
+        /* Code Blocks */
+        .code-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+        .code-block { background: #0d1117; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        .code-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .code-dot.red { background: #ff5f57; }
+        .code-dot.yellow { background: #febc2e; }
+        .code-dot.green { background: #28c840; }
+        .code-title { font-size: 0.8rem; color: var(--text-dim); margin-left: 8px; }
+        .code-body { padding: 20px; font-family: 'Fira Code', 'SF Mono', monospace; font-size: 0.85rem; line-height: 1.7; overflow-x: auto; }
+        .code-body .kw { color: #ff7b72; }
+        .code-body .str { color: #a5d6ff; }
+        .code-body .fn { color: #d2a8ff; }
+        .code-body .cm { color: #8b949e; }
+        .code-body .var { color: #ffa657; }
+        .code-body .num { color: #79c0ff; }
+        .step-desc { padding: 8px 0; }
+        .step-desc h3 { font-size: 1.15rem; margin-bottom: 8px; }
+        .step-desc p { color: var(--text-muted); font-size: 0.92rem; }
+
+        /* Provider Cards */
+        .providers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        .provider-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; }
+        .provider-logo { font-size: 1.8rem; margin-bottom: 8px; }
+        .provider-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+        .provider-card p { font-size: 0.78rem; color: var(--text-dim); }
+
+        /* Security */
+        .security-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .security-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+        .security-card .icon { font-size: 1.5rem; margin-bottom: 10px; }
+        .security-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: var(--success); }
+        .security-card p { font-size: 0.88rem; color: var(--text-muted); }
+
+        /* Steps */
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .step-card { position: relative; }
+        .step-number { width: 40px; height: 40px; border-radius: 10px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; margin-bottom: 16px; }
+        .step-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+        .step-card p { color: var(--text-muted); font-size: 0.92rem; }
+
+        /* Stats */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; }
+        .stat-value { font-size: 2.2rem; font-weight: 800; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 0.88rem; color: var(--text-dim); margin-top: 4px; }
+
+        /* FAQ */
+        .faq-list { max-width: 800px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid var(--border); padding: 24px 0; }
+        .faq-q { font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; }
+        .faq-a { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Footer */
+        .footer { border-top: 1px solid var(--border); padding: 60px 0 40px; text-align: center; }
+        .footer-brand { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+        .footer p { color: var(--text-dim); font-size: 0.9rem; }
+        .footer-links { display: flex; gap: 24px; justify-content: center; margin-top: 16px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.88rem; }
+        .footer-links a:hover { color: var(--text); }
+
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 2.4rem; }
+            .comparison, .features-grid, .code-demo, .security-grid, .steps { grid-template-columns: 1fr; }
+            .providers-grid, .usecases-grid, .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .top-nav-links { display: none; }
+            .hero-stats { gap: 24px; flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="top-nav">
+    <div class="container">
+        <a href="#" class="top-nav-brand">
+            <div class="top-nav-logo">MW</div>
+            <span class="top-nav-text">MTS Webhooks</span>
+        </a>
+        <div class="top-nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#providers">Providers</a>
+            <a href="#security">Security</a>
+            <a href="#quickstart">Quick Start</a>
+            <a href="#faq">FAQ</a>
+            <a href="#quickstart" class="top-nav-cta">Get Started</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">v1.0.0 — PHP 8.3+ — Laravel 13</div>
+    <h1>Enterprise <span class="gradient">Webhook Infrastructure</span> for Laravel</h1>
+    <p>Receive and send webhooks with HMAC verification, automatic retries, deduplication, and full audit trails. Built for payment gateways, SaaS, e-commerce, and third-party integrations.</p>
+    <div class="hero-actions">
+        <a href="#quickstart" class="btn btn-primary">Get Started — 3 Commands</a>
+        <a href="#features" class="btn btn-outline">Explore Features</a>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value">82</div><div class="hero-stat-label">Source Files</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">23</div><div class="hero-stat-label">Test Cases</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">5</div><div class="hero-stat-label">Providers Built-In</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">0</div><div class="hero-stat-label">External Dependencies</div></div>
+    </div>
+</section>
+
+<!-- Problem vs Solution -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Why This Package</div>
+            <h2>Webhook Handling, Done Right</h2>
+            <p>Stop building fragile webhook handlers from scratch. Get enterprise-grade infrastructure in minutes.</p>
+        </div>
+        <div class="comparison">
+            <div class="compare-card bad">
+                <div class="compare-label">Without MTS Webhooks</div>
+                <div class="compare-title">Fragile, Manual Webhook Handling</div>
+                <ul class="compare-list">
+                    <li><span class="icon">✗</span> No signature verification — anyone can send fake events</li>
+                    <li><span class="icon">✗</span> Duplicate events processed twice, causing data corruption</li>
+                    <li><span class="icon">✗</span> Failed webhooks silently disappear with no retry</li>
+                    <li><span class="icon">✗</span> No audit trail — impossible to debug integration issues</li>
+                    <li><span class="icon">✗</span> Security secrets logged in plaintext</li>
+                    <li><span class="icon">✗</span> Hours wasted debugging third-party integration failures</li>
+                    <li><span class="icon">✗</span> Each provider requires custom ad-hoc handling code</li>
+                </ul>
+            </div>
+            <div class="compare-card good">
+                <div class="compare-label">With MTS Webhooks</div>
+                <div class="compare-title">Bulletproof Webhook Infrastructure</div>
+                <ul class="compare-list">
+                    <li><span class="icon">✓</span> HMAC-SHA256 signature verification for every provider</li>
+                    <li><span class="icon">✓</span> Automatic idempotency — never process the same event twice</li>
+                    <li><span class="icon">✓</span> Exponential backoff retry with dead-letter queue</li>
+                    <li><span class="icon">✓</span> Full audit trail — every attempt, every error, every timestamp</li>
+                    <li><span class="icon">✓</span> Automatic sensitive data masking before storage</li>
+                    <li><span class="icon">✓</span> One-command setup, works with Stripe, Razorpay, Shopify, Magento</li>
+                    <li><span class="icon">✓</span> Standardized pipeline — consistent handling across all providers</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pipeline Visual -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Architecture</div>
+            <h2>The Webhook Pipeline</h2>
+            <p>Every inbound webhook passes through 7 stages. Each stage is a dedicated, testable class.</p>
+        </div>
+        <div class="pipeline-visual">
+            <div class="pipe-step"><div class="pipe-num">Step 1</div><div class="pipe-name">Receive</div><div class="pipe-desc">HTTP POST arrives</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 2</div><div class="pipe-name">Authenticate</div><div class="pipe-desc">HMAC + Timestamp + IP</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 3</div><div class="pipe-name">Validate</div><div class="pipe-desc">JSON structure check</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 4</div><div class="pipe-name">Persist</div><div class="pipe-desc">Store to database</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 5</div><div class="pipe-name">Deduplicate</div><div class="pipe-desc">Idempotency check</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 6</div><div class="pipe-name">Process</div><div class="pipe-desc">Invoke handler class</div></div>
+            <div class="pipe-step"><div class="pipe-num">Step 7</div><div class="pipe-name">Complete</div><div class="pipe-desc">Mark done / retry / dead</div></div>
+        </div>
+        <p style="text-align:center; color:var(--text-dim); margin-top:12px; font-size:0.9rem;">If processing fails at Step 6, the webhook enters the retry flow with exponential backoff, then moves to dead-letter queue after exhausting attempts.</p>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Capabilities</div>
+            <h2>Everything You Need</h2>
+            <p>Built for payment gateways, SaaS platforms, e-commerce, CRM, ERP, and any third-party integration.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon blue">🔐</div>
+                <h3>HMAC Signature Verification</h3>
+                <p>Every inbound webhook is cryptographically verified using provider-specific HMAC-SHA256. Supports Stripe's timestamped format, Shopify's base64 encoding, and standard HMAC.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon green">🔄</div>
+                <h3>Automatic Deduplication</h3>
+                <p>Database-level unique index on idempotency keys prevents duplicate processing. Works with Stripe event IDs, Shopify webhook IDs, Razorpay entity IDs, and custom keys.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon purple">🔁</div>
+                <h3>Smart Retry Engine</h3>
+                <p>Exponential backoff with configurable base delay, multiplier, and max delay. Random jitter prevents thundering herd. Failed webhooks are automatically retried up to 5 times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon yellow">📤</div>
+                <h3>Outbound Webhooks</h3>
+                <p>Send signed, queued webhooks from your Laravel app. Fluent builder API with signWith(), queue(), and full delivery tracking in the database.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon red">🛡️</div>
+                <h3>Replay Attack Protection</h3>
+                <p>Timestamp validation rejects stale webhooks outside the tolerance window. IP allowlisting adds an extra layer of security for sensitive payment integrations.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon pink">🎭</div>
+                <h3>Sensitive Data Masking</h3>
+                <p>Passwords, tokens, card numbers, API keys, and authorization headers are automatically masked before database storage. Configurable field list per compliance needs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon cyan">📊</div>
+                <h3>Full Audit Trail</h3>
+                <p>Every webhook, every attempt, every error is recorded with timestamps and duration. Run stats commands to see success rates, provider breakdowns, and top events.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon orange">⚡</div>
+                <h3>Queue-Powered Processing</h3>
+                <p>Webhooks are accepted instantly (HTTP 200) and processed asynchronously via Laravel queues. Non-blocking for maximum throughput under high load.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon indigo">🔧</div>
+                <h3>Artisan Commands</h3>
+                <p>Replay, retry, prune, and inspect webhooks from the command line. Full CLI control with filtering by provider, event, date range, and dry-run mode.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" id="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">In Depth</div>
+            <h2>How Each Feature Works</h2>
+        </div>
+
+        <!-- Inbound Webhooks -->
+        <h3 style="font-size:1.3rem; margin-bottom:20px;">📥 Inbound Webhooks</h3>
+        <div class="code-demo" style="margin-bottom:48px;">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+                    <span class="code-title">Route &amp; Controller</span>
+                </div>
+                <div class="code-body">
+<span class="cm">// routes/webhooks.php (auto-published)</span>
+Route::<span class="fn">post</span>(<span class="str">'/{provider}'</span>,
+    [WebhookController::<span class="kw">class</span>, <span class="str">'handle'</span>]);
+
+<span class="cm">// Handles any POST to:</span>
+<span class="cm">//   /webhooks/stripe</span>
+<span class="cm">//   /webhooks/razorpay</span>
+<span class="cm">//   /webhooks/shopify</span>
+<span class="cm">//   /webhooks/magento</span>
+<span class="cm">//   /webhooks/generic</span>
+                </div>
+            </div>
+            <div class="step-desc">
+                <h3>Register a Handler</h3>
+                <p>Map event names to handler classes in your config. The handler receives the full payload, headers, event name, and provider name.</p>
+                <div class="code-block" style="margin-top:12px;">
+                    <div class="code-header">
+                        <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+                        <span class="code-title">Handler Class</span>
+                    </div>
+                    <div class="code-body">
+<span class="kw">class</span> <span class="fn">PaymentSucceeded</span>
+    <span class="kw">implements</span> WebhookHandlerContract
+{
+    <span class="kw">public function</span> <span class="fn">handle</span>(
+        <span class="kw">array</span> <span class="var">$payload</span>,
+        <span class="kw">array</span> <span class="var">$headers</span>,
+        <span class="kw">string</span> <span class="var">$event</span>,
+        <span class="kw">string</span> <span class="var">$provider</span>
+    ): <span class="kw">void</span> {
+        <span class="cm">// Process the webhook</span>
+        Order::<span class="fn">where</span>(<span class="str">'payment_id'</span>,
+            <span class="var">$payload</span>[<span class="str">'id'</span>])
+            -><span class="fn">update</span>([<span class="str">'status'</span> => <span class="str">'paid'</span>]);
+    }
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outbound Webhooks -->
+        <h3 style="font-size:1.3rem; margin-bottom:20px;">📤 Outbound Webhooks</h3>
+        <div class="code-demo" style="margin-bottom:48px;">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+                    <span class="code-title">Send a Webhook</span>
+                </div>
+                <div class="code-body">
+<span class="kw">use</span> Webhook;
+
+<span class="cm">// Queued delivery (recommended)</span>
+Webhook::<span class="fn">send</span>(<span class="str">'order.created'</span>)
+    -><span class="fn">to</span>(<span class="str">'https://partner.com/hook'</span>)
+    -><span class="fn">payload</span>(<span class="var">$order</span>)
+    -><span class="fn">signWith</span>(<span class="var">$secret</span>)
+    -><span class="fn">maxAttempts</span>(<span class="num">3</span>)
+    -><span class="fn">queue</span>();
+
+<span class="cm">// Synchronous delivery</span>
+Webhook::<span class="fn">send</span>(<span class="str">'payment.completed'</span>)
+    -><span class="fn">to</span>(<span class="str">'https://api.example.com/hook'</span>)
+    -><span class="fn">payload</span>(<span class="var">$payment</span>)
+    -><span class="fn">signWith</span>(<span class="var">$secret</span>)
+    -><span class="fn">now</span>();
+                </div>
+            </div>
+            <div class="step-desc">
+                <h3>Automatic Signing &amp; Tracking</h3>
+                <p>When you call <code>signWith()</code>, three headers are added:</p>
+                <ul style="margin:12px 0 0 20px; color:var(--text-muted);">
+                    <li><code>X-Webhook-Signature</code> — HMAC-SHA256 of the payload</li>
+                    <li><code>X-Webhook-Timestamp</code> — Unix timestamp</li>
+                    <li><code>X-Webhook-Signed-Payload</code> — SHA256 hash of payload</li>
+                </ul>
+                <p style="margin-top:12px;">Every delivery creates a database record tracking status, attempts, response codes, and errors.</p>
+            </div>
+        </div>
+
+        <!-- Security -->
+        <h3 style="font-size:1.3rem; margin-bottom:20px;">🔐 Security Features</h3>
+        <div class="code-demo">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+                    <span class="code-title">Sensitive Data Masking</span>
+                </div>
+                <div class="code-body">
+<span class="cm">// Before storage, payloads are masked:</span>
+
+<span class="cm">// Input:</span>
+{<span class="str">"card_number"</span>: <span class="str">"4111111111111111"</span>,
+ <span class="str">"password"</span>: <span class="str">"secret123"</span>,
+ <span class="str">"name"</span>: <span class="str">"John"</span>}
+
+<span class="cm">// Stored:</span>
+{<span class="str">"card_number"</span>: <span class="str">"4111**************"</span>,
+ <span class="str">"password"</span>: <span class="str">"secr*******"</span>,
+ <span class="str">"name"</span>: <span class="str">"John"</span>}
+
+<span class="cm">// Headers also sanitized:</span>
+<span class="cm">// authorization → [REDACTED]</span>
+<span class="cm">// cookie → [REDACTED]</span>
+                </div>
+            </div>
+            <div class="step-desc">
+                <h3>Built-In Protection</h3>
+                <p><strong>HMAC Verification</strong> — Every provider's signature is cryptographically verified before processing.</p>
+                <p><strong>Timestamp Validation</strong> — Webhooks older than 300 seconds (configurable) are rejected as replay attacks.</p>
+                <p><strong>IP Restrictions</strong> — Optionally restrict webhooks to known provider IP addresses.</p>
+                <p><strong>Data Masking</strong> — 9 sensitive field types are masked by default. Add your own.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Providers -->
+<section class="section section-alt" id="providers">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Integrations</div>
+            <h2>5 Providers Built In</h2>
+            <p>Each provider has its own signature verification, event extraction, and idempotency strategy.</p>
+        </div>
+        <div class="providers-grid">
+            <div class="provider-card">
+                <div class="provider-logo">💳</div>
+                <h4>Stripe</h4>
+                <p>Timestamped HMAC-SHA256</p>
+            </div>
+            <div class="provider-card">
+                <div class="provider-logo">💰</div>
+                <h4>Razorpay</h4>
+                <p>Standard HMAC-SHA256</p>
+            </div>
+            <div class="provider-card">
+                <div class="provider-logo">🛒</div>
+                <h4>Shopify</h4>
+                <p>Base64 HMAC-SHA256</p>
+            </div>
+            <div class="provider-card">
+                <div class="provider-logo">🏪</div>
+                <h4>Magento</h4>
+                <p>HMAC-SHA256</p>
+            </div>
+            <div class="provider-card">
+                <div class="provider-logo">⚙️</div>
+                <h4>Generic</h4>
+                <p>Any HMAC service</p>
+            </div>
+        </div>
+        <p style="text-align:center; color:var(--text-dim); margin-top:20px; font-size:0.9rem;">Need a custom provider? Implement <code>WebhookProviderContract</code> and register it. 5 minutes max.</p>
+    </div>
+</section>
+
+<!-- Use Cases -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Industries</div>
+            <h2>Built For Every Industry</h2>
+        </div>
+        <div class="usecases-grid">
+            <div class="usecase-card"><div class="usecase-emoji">💳</div><h4>Payment Gateways</h4><p>Stripe, Razorpay, PayPal — never miss a payment event</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">🛒</div><h4>E-Commerce</h4><p>Shopify, Magento — order, refund, inventory sync</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">☁️</div><h4>SaaS Platforms</h4><p>Subscription lifecycle, billing, usage tracking</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">📋</div><h4>CRM / ERP</h4><p>Customer sync, inventory, fulfillment events</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">🔗</div><h4>Third-Party APIs</h4><p>Any REST API — Twilio, SendGrid, Slack, etc.</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">📡</div><h4>IoT &amp; Real-Time</h4><p>Device events, notifications, alerts</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">🏦</div><h4>FinTech</h4><p>Banking events, KYC, compliance triggers</p></div>
+            <div class="usecase-card"><div class="usecase-emoji">🏥</div><h4>Healthcare</h4><p>Patient events, HL7/FHIR integrations</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Security -->
+<section class="section section-alt" id="security">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Security</div>
+            <h2>Enterprise-Grade Protection</h2>
+            <p>Multiple layers of security protect your webhook infrastructure.</p>
+        </div>
+        <div class="security-grid">
+            <div class="security-card">
+                <div class="icon">🔐</div>
+                <h4>HMAC-SHA256</h4>
+                <p>Every inbound webhook signature is cryptographically verified using your provider's secret key.</p>
+            </div>
+            <div class="security-card">
+                <div class="icon">⏱️</div>
+                <h4>Timestamp Validation</h4>
+                <p>Webhooks outside the tolerance window (default 5 min) are rejected as potential replay attacks.</p>
+            </div>
+            <div class="security-card">
+                <div class="icon">🌐</div>
+                <h4>IP Allowlisting</h4>
+                <p>Optionally restrict incoming webhooks to known provider IP addresses for additional security.</p>
+            </div>
+            <div class="security-card">
+                <div class="icon">🎭</div>
+                <h4>Data Masking</h4>
+                <p>Passwords, tokens, card numbers, and API keys are masked before database storage.</p>
+            </div>
+            <div class="security-card">
+                <div class="icon">📋</div>
+                <h4>Full Audit Trail</h4>
+                <p>Every attempt, every error, every timestamp is recorded. Complete visibility for compliance.</p>
+            </div>
+            <div class="security-card">
+                <div class="icon">🗑️</div>
+                <h4>Dead Letter Queue</h4>
+                <p>Failed events are preserved for investigation, not silently dropped. Never lose a webhook.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Start -->
+<section class="section" id="quickstart">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Get Started</div>
+            <h2>Up and Running in 3 Steps</h2>
+        </div>
+        <div class="steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Install via Composer</h3>
+                <p>One command adds the package to your Laravel application. Zero configuration required to start.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Run the Installer</h3>
+                <p>Publishes config, migrations, and route files. Run <code>php artisan migrate</code> to create tables.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Configure &amp; Go</h3>
+                <p>Add your provider secrets to <code>.env</code>, register handlers in config, and you're live.</p>
+            </div>
+        </div>
+        <div class="code-block" style="margin-top:32px; max-width:700px; margin-left:auto; margin-right:auto;">
+            <div class="code-header">
+                <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+                <span class="code-title">Terminal</span>
+            </div>
+            <div class="code-body">
+<span class="cm"># 1. Install the package</span>
+composer require magetech/laravel-webhooks
+
+<span class="cm"># 2. Run the installer</span>
+php artisan mts:webhooks:install
+
+<span class="cm"># 3. Run migrations</span>
+php artisan migrate
+
+<span class="cm"># 4. Add your secrets to .env</span>
+echo <span class="str">"STRIPE_WEBHOOK_SECRET=whsec_..."</span> >> .env
+
+<span class="cm"># 5. Register handlers in config/mts-webhooks.php</span>
+<span class="cm"># Done! Your webhooks are live at /webhooks/stripe</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Database Tables</div></div>
+            <div class="stat-card"><div class="stat-value">5</div><div class="stat-label">Artisan Commands</div></div>
+            <div class="stat-card"><div class="stat-value">8</div><div class="stat-label">Lifecycle Events</div></div>
+            <div class="stat-card"><div class="stat-value">50+</div><div class="stat-label">Config Options</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">FAQ</div>
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-q">Does this work with Stripe webhooks?</div>
+                <div class="faq-a">Yes. The package includes built-in Stripe provider support with proper signature verification using Stripe's timestamped HMAC format. Just add your <code>STRIPE_WEBHOOK_SECRET</code> to <code>.env</code>.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Can I add custom webhook providers?</div>
+                <div class="faq-a">Absolutely. Implement the <code>WebhookProviderContract</code> interface, define your signature header, event extraction, and idempotency key logic. The GenericProvider also works out of the box for any HMAC-SHA256 service.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What happens when a webhook fails?</div>
+                <div class="faq-a">Failed webhooks are automatically retried with exponential backoff (60s, 120s, 240s, 480s, 960s by default). After exhausting all retry attempts, they're moved to a dead-letter queue where you can inspect, replay, or alert on them.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Is it suitable for production use?</div>
+                <div class="faq-a">Yes. This package is designed for enterprise production environments with full test coverage (23 test cases), database-level idempotency, queue-based processing, soft deletes, and comprehensive error handling.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Can I send outbound webhooks too?</div>
+                <div class="faq-a">Yes. The package supports both inbound and outbound webhooks. Use the fluent <code>Webhook</code> facade to send signed, queued webhooks to any URL with full delivery tracking, retry support, and response code recording.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How does deduplication work?</div>
+                <div class="faq-a">Each provider extracts an idempotency key (Stripe event ID, Shopify webhook ID, etc.). This key is stored with a UNIQUE database index. If the same key arrives again, the duplicate is rejected and returns a 200 OK response (idempotent).</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Can I replay failed webhooks?</div>
+                <div class="faq-a">Yes. Use <code>php artisan mts:webhook:replay {id}</code> to replay a single webhook, or <code>--provider=stripe --from=2026-01-01</code> to batch-replay. Use <code>--dry-run</code> to preview without processing.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What sensitive data is masked?</div>
+                <div class="faq-a">By default: password, token, authorization, secret, card_number, cvv, ssn, api_key, and private_key. You can add custom fields in the config. Headers like authorization, cookie, and x-api-key are also redacted.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Does it support Laravel queues?</div>
+                <div class="faq-a">Yes. Both inbound processing and outbound delivery use Laravel's queue system. Configure queue names, connections, and timeouts per-direction in the config file.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How do I monitor webhook health?</div>
+                <div class="faq-a">Run <code>php artisan mts:webhook:stats --days=30</code> for success rates, provider breakdowns, and top events. Listen to <code>WebhookDeadLettered</code> events for real-time alerting. Check <code>--json</code> output for programmatic access.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-brand">MTS Laravel Webhook Manager</div>
+        <p>Enterprise-grade inbound and outbound webhook infrastructure for Laravel.</p>
+        <p style="margin-top:8px;">v1.0.0 &middot; PHP 8.3+ &middot; Laravel 13.x &middot; MIT License</p>
+        <div class="footer-links">
+            <a href="#">Documentation</a>
+            <a href="#">GitHub</a>
+            <a href="#">Packagist</a>
+            <a href="#">Changelog</a>
+        </div>
+        <p style="margin-top:24px; font-size:0.82rem;">By MageTech Solutions</p>
+    </div>
+</footer>
+
+</body>
+</html>
