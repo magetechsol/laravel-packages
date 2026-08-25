@@ -17,7 +17,8 @@
         "magetech/laravel-api-toolkit": "^1.0",
         "magetech/laravel-webhooks": "^1.0",
         "magetech/laravel-import-export": "^1.0",
-        "magetech/laravel-workflow": "^1.0"
+        "magetech/laravel-workflow": "^1.0",
+        "magetech/laravel-feature-flags": "^1.0"
     },
     "config": {
         "sort-packages": true

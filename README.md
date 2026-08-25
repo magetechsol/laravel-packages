@@ -68,11 +68,13 @@ Business workflow and approval automation.
 
 ### Feature Flags
 
-Feature rollout and controlled release management.
+Controlled feature rollout, targeting, environments, percentages, scheduling, caching and auditability.
 
 **Package:** `magetech/laravel-feature-flags`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/feature-flags/README.md)
 
 ---
 
