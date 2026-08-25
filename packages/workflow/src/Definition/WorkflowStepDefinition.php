@@ -88,6 +88,11 @@ class WorkflowStepDefinition
         return $this->queued;
     }
 
+    public function requiresAll(): bool
+    {
+        return $this->approvalType === ApprovalType::AllApprovers;
+    }
+
     public function getOrder(): int
     {
         return $this->order;

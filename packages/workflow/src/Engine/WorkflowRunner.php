@@ -12,6 +12,7 @@ use MageTech\Workflow\Enums\StepStatus;
 use MageTech\Workflow\Enums\StepType;
 use MageTech\Workflow\Enums\TransitionType;
 use MageTech\Workflow\Enums\WorkflowStatus;
+use MageTech\Workflow\Events\WorkflowCompleted;
 use MageTech\Workflow\Events\WorkflowStepCompleted;
 use MageTech\Workflow\Events\WorkflowStepFailed;
 use MageTech\Workflow\Events\WorkflowStepStarted;
@@ -27,6 +28,7 @@ class WorkflowRunner
         private ConcurrencyGuard $guard,
         private ApprovalManager $approvals,
         private AuditLogger $audit,
+        private WorkflowRegistrar $registrar,
     ) {}
 
     /**
@@ -34,7 +36,7 @@ class WorkflowRunner
      */
     public function run(WorkflowInstance $instance): void
     {
-        $definition = WorkflowDefinition::fromArray($instance->workflow->definition);
+        $definition = $this->registrar->get($instance->workflow->name);
 
         if (! $this->evaluator->evaluateWhenCondition($definition->getWhenCondition(), $instance)) {
             $this->audit->log($instance, TransitionType::Cancelled, reason: 'Workflow when condition not met');
@@ -82,6 +84,8 @@ class WorkflowRunner
 
             $this->executeStep($instance, $step, $stepDef);
 
+            $step = $step->fresh();
+
             if ($step->status !== StepStatus::Completed) {
                 return;
             }
@@ -90,6 +94,7 @@ class WorkflowRunner
         if ($this->allStepsCompleted($instance)) {
             $instance->markAsCompleted();
             $this->audit->log($instance, TransitionType::Completed, fromState: WorkflowStatus::Running->value, toState: WorkflowStatus::Completed->value);
+            event(new WorkflowCompleted($instance));
         }
     }
 
@@ -100,52 +105,52 @@ class WorkflowRunner
     {
         $this->guard->lock($instance, function ($locked) use ($instance, $step, $stepDef) {
             $this->guard->lockStep($step, function ($lockedStep) use ($instance, $stepDef) {
-                $step->markAsRunning();
-                $instance->update(['current_step' => $step->name]);
+                $lockedStep->markAsRunning();
+                $instance->update(['current_step' => $lockedStep->name]);
 
-                $this->audit->log($instance, TransitionType::StepStarted, stepName: $step->name, fromState: StepStatus::Pending->value, toState: StepStatus::Running->value);
-                event(new WorkflowStepStarted($instance, $step));
+                $this->audit->log($instance, TransitionType::StepStarted, stepName: $lockedStep->name, fromState: StepStatus::Pending->value, toState: StepStatus::Running->value);
+                event(new WorkflowStepStarted($instance, $lockedStep));
 
                 $handler = $stepDef->getHandler();
                 if ($handler === null) {
-                    $step->markAsCompleted();
-                    $this->audit->log($instance, TransitionType::StepCompleted, stepName: $step->name, fromState: StepStatus::Running->value, toState: StepStatus::Completed->value);
-                    event(new WorkflowStepCompleted($instance, $step));
+                    $lockedStep->markAsCompleted();
+                    $this->audit->log($instance, TransitionType::StepCompleted, stepName: $lockedStep->name, fromState: StepStatus::Running->value, toState: StepStatus::Completed->value);
+                    event(new WorkflowStepCompleted($instance, $lockedStep));
                     return;
                 }
 
                 try {
-                    $result = (new $handler())->handle($instance, $step);
-                    $step->markAsCompleted($result);
+                    $result = (new $handler())->handle($instance, $lockedStep);
+                    $lockedStep->markAsCompleted($result);
 
                     if (is_array($result) && $result !== []) {
                         $context = array_merge($instance->context ?? [], $result);
                         $instance->update(['context' => $context]);
                     }
 
-                    $this->audit->log($instance, TransitionType::StepCompleted, stepName: $step->name, fromState: StepStatus::Running->value, toState: StepStatus::Completed->value, metadata: $result);
-                    event(new WorkflowStepCompleted($instance, $step));
+                    $this->audit->log($instance, TransitionType::StepCompleted, stepName: $lockedStep->name, fromState: StepStatus::Running->value, toState: StepStatus::Completed->value, metadata: $result);
+                    event(new WorkflowStepCompleted($instance, $lockedStep));
                 } catch (\Throwable $e) {
-                    $step->incrementAttempts();
+                    $lockedStep->incrementAttempts();
 
-                    if ($step->attempts >= $step->max_attempts) {
-                        $step->markAsFailed($e->getMessage());
+                    if ($lockedStep->attempts >= $lockedStep->max_attempts) {
+                        $lockedStep->markAsFailed($e->getMessage());
                         $instance->markAsFailed($e->getMessage());
-                        $this->audit->log($instance, TransitionType::StepFailed, stepName: $step->name, fromState: StepStatus::Running->value, toState: StepStatus::Failed->value, reason: $e->getMessage());
+                        $this->audit->log($instance, TransitionType::StepFailed, stepName: $lockedStep->name, fromState: StepStatus::Running->value, toState: StepStatus::Failed->value, reason: $e->getMessage());
                         $this->audit->log($instance, TransitionType::Failed, fromState: WorkflowStatus::Running->value, toState: WorkflowStatus::Failed->value, reason: $e->getMessage());
-                        event(new WorkflowStepFailed($instance, $step, $e));
+                        event(new WorkflowStepFailed($instance, $lockedStep, $e));
                         return;
                     }
 
                     $retryStrategy = app(RetryStrategy::class);
                     $nextRetry = $retryStrategy->calculateNextRetry(
-                        $step->attempts,
+                        $lockedStep->attempts,
                         $stepDef->getBackoff(),
                         $stepDef->getBaseDelay(),
                     );
-                    $step->scheduleRetry($nextRetry);
-                    $this->audit->log($instance, TransitionType::Retried, stepName: $step->name, reason: $e->getMessage(), metadata: ['next_retry_at' => $nextRetry->toIso8601String()]);
-                    event(new WorkflowStepFailed($instance, $step, $e));
+                    $lockedStep->scheduleRetry($nextRetry);
+                    $this->audit->log($instance, TransitionType::Retried, stepName: $lockedStep->name, reason: $e->getMessage(), metadata: ['next_retry_at' => $nextRetry->toIso8601String()]);
+                    event(new WorkflowStepFailed($instance, $lockedStep, $e));
                 }
             });
         });

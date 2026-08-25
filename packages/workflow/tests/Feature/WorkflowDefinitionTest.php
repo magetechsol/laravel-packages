@@ -123,10 +123,9 @@ class WorkflowDefinitionTest extends TestCase
         $this->expectException(\MageTech\Workflow\Exceptions\WorkflowDefinitionException::class);
         $this->expectExceptionMessage('already defined');
 
-        $definition = WorkflowDefinition::define('dup')
-            ->step('step_one')
-            ->step('step_one');
-
+        $definition = WorkflowDefinition::define('dup');
+        $definition->step('step_one');
+        $definition->step('step_one');
         $definition->validate();
     }
 

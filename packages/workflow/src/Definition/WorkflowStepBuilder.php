@@ -35,11 +35,40 @@ class WorkflowStepBuilder
 
     private bool $queued = false;
 
+    private ?WorkflowDefinition $definition = null;
+
     public function __construct(string $name, StepType $type, ?string $handler = null)
     {
         $this->name = $name;
         $this->type = $type;
         $this->handler = $handler;
+    }
+
+    public function setDefinition(WorkflowDefinition $definition): static
+    {
+        $this->definition = $definition;
+
+        return $this;
+    }
+
+    public function step(string $name, ?string $handler = null): WorkflowStepBuilder
+    {
+        return $this->definition->step($name, $handler);
+    }
+
+    public function approval(string $name, ?ApprovalType $type = null): WorkflowStepBuilder
+    {
+        return $this->definition->approval($name, $type);
+    }
+
+    public function condition(string $name, Closure $condition): WorkflowStepBuilder
+    {
+        return $this->definition->condition($name, $condition);
+    }
+
+    public function complete(): WorkflowDefinition
+    {
+        return $this->definition->complete();
     }
 
     public function handler(string $handler): static

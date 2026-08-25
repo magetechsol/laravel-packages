@@ -34,6 +34,7 @@ class WorkflowServiceProvider extends ServiceProvider
                 $app->make(ConcurrencyGuard::class),
                 $app->make(ApprovalManager::class),
                 $app->make(AuditLogger::class),
+                $app->make(WorkflowRegistrar::class),
             );
         });
 

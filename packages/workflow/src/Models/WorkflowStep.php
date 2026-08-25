@@ -122,7 +122,8 @@ class WorkflowStep extends Model
 
     public function incrementAttempts(): void
     {
-        $this->increment('attempts');
+        $this->attempts = $this->attempts + 1;
+        $this->save();
     }
 
     public function scheduleRetry(\DateTimeInterface $nextRetryAt): void

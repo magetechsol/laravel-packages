@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Request;
 use MageTech\Workflow\Enums\TransitionType;
 use MageTech\Workflow\Models\WorkflowInstance;
 use MageTech\Workflow\Models\WorkflowLog;
+use MageTech\Workflow\Models\WorkflowTransition;
 
 class AuditLogger
 {
@@ -38,6 +39,19 @@ class AuditLogger
             'metadata' => $metadata,
             'request_id' => config('mts-workflow.audit.log_request_id', true) ? Request::header('X-Request-ID') : null,
             'ip_address' => config('mts-workflow.audit.log_ip_address', true) ? Request::ip() : null,
+            'created_at' => now(),
+        ]);
+
+        WorkflowTransition::create([
+            'instance_id' => $instance->id,
+            'step_name' => $stepName,
+            'type' => $type,
+            'from_state' => $fromState,
+            'to_state' => $toState,
+            'actor_id' => $actorId,
+            'actor_type' => $actorType,
+            'reason' => $reason,
+            'metadata' => $metadata,
             'created_at' => now(),
         ]);
     }

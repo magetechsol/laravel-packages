@@ -15,8 +15,8 @@ return new class extends Migration
             $table->foreignId('instance_id')->constrained('mts_workflow_instances')->cascadeOnDelete();
             $table->string('step_name')->nullable();
             $table->string('type');
-            $table->string('from_state');
-            $table->string('to_state');
+            $table->string('from_state')->nullable();
+            $table->string('to_state')->nullable();
             $table->unsignedBigInteger('actor_id')->nullable();
             $table->string('actor_type')->nullable();
             $table->text('reason')->nullable();

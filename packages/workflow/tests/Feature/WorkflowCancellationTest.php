@@ -7,6 +7,7 @@ namespace MageTech\Workflow\Tests\Feature;
 use MageTech\Workflow\Definition\WorkflowDefinition;
 use MageTech\Workflow\Engine\WorkflowManager;
 use MageTech\Workflow\Engine\WorkflowRegistrar;
+use MageTech\Workflow\Enums\ApprovalType;
 use MageTech\Workflow\Enums\WorkflowStatus;
 use MageTech\Workflow\Tests\Fixtures\handlers\PaymentHandler;
 use MageTech\Workflow\Tests\Fixtures\Order;
@@ -36,6 +37,8 @@ class WorkflowCancellationTest extends TestCase
     {
         $definition = WorkflowDefinition::define('cancel-test')
             ->step('payment', PaymentHandler::class)
+            ->approval('manager', ApprovalType::Single)
+                ->approvers([1])
             ->complete();
 
         $this->registrar->register($definition);
@@ -52,6 +55,8 @@ class WorkflowCancellationTest extends TestCase
     {
         $definition = WorkflowDefinition::define('cancel-steps')
             ->step('payment', PaymentHandler::class)
+            ->approval('manager', ApprovalType::Single)
+                ->approvers([1])
             ->step('next', \MageTech\Workflow\Tests\Fixtures\Handlers\InventoryHandler::class)
             ->complete();
 

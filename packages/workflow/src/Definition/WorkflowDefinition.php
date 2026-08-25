@@ -27,6 +27,11 @@ class WorkflowDefinition
 
     private ?string $currentStepName = null;
 
+    /** @var array<int, WorkflowStepBuilder> */
+    private array $pendingBuilders = [];
+
+    private bool $built = false;
+
     public function __construct(string $name)
     {
         $this->name = $name;
@@ -49,9 +54,11 @@ class WorkflowDefinition
      */
     public function step(string $name, ?string $handler = null): WorkflowStepBuilder
     {
-        $builder = new WorkflowStepBuilder($name, StepType::Action, $handler);
+        $this->flushPendingBuilders();
+        $builder = (new WorkflowStepBuilder($name, StepType::Action, $handler))
+            ->setDefinition($this);
         $this->currentStepName = $name;
-        $this->steps[] = $builder->build();
+        $this->pendingBuilders[] = $builder;
 
         return $builder;
     }
@@ -61,10 +68,12 @@ class WorkflowDefinition
      */
     public function approval(string $name, ?ApprovalType $type = null): WorkflowStepBuilder
     {
-        $builder = new WorkflowStepBuilder($name, StepType::Approval)
-            ->approvalType($type ?? ApprovalType::Single);
+        $this->flushPendingBuilders();
+        $builder = (new WorkflowStepBuilder($name, StepType::Approval))
+            ->approvalType($type ?? ApprovalType::Single)
+            ->setDefinition($this);
         $this->currentStepName = $name;
-        $this->steps[] = $builder->build();
+        $this->pendingBuilders[] = $builder;
 
         return $builder;
     }
@@ -74,12 +83,22 @@ class WorkflowDefinition
      */
     public function condition(string $name, Closure $condition): WorkflowStepBuilder
     {
-        $builder = new WorkflowStepBuilder($name, StepType::Condition)
-            ->condition($condition);
+        $this->flushPendingBuilders();
+        $builder = (new WorkflowStepBuilder($name, StepType::Condition))
+            ->condition($condition)
+            ->setDefinition($this);
         $this->currentStepName = $name;
-        $this->steps[] = $builder->build();
+        $this->pendingBuilders[] = $builder;
 
         return $builder;
+    }
+
+    private function flushPendingBuilders(): void
+    {
+        foreach ($this->pendingBuilders as $builder) {
+            $this->steps[] = $builder->build();
+        }
+        $this->pendingBuilders = [];
     }
 
     /**
@@ -87,6 +106,7 @@ class WorkflowDefinition
      */
     public function complete(): static
     {
+        $this->flushPendingBuilders();
         $this->steps[] = (new WorkflowStepBuilder('__complete', StepType::Complete))->build();
 
         return $this;
@@ -125,6 +145,8 @@ class WorkflowDefinition
     /** @return array<int, WorkflowStepDefinition> */
     public function getSteps(): array
     {
+        $this->flushPendingBuilders();
+
         return $this->steps;
     }
 
@@ -140,6 +162,8 @@ class WorkflowDefinition
 
     public function validate(): void
     {
+        $this->flushPendingBuilders();
+
         if ($this->steps === []) {
             throw WorkflowDefinitionException::emptyWorkflow();
         }
@@ -159,6 +183,8 @@ class WorkflowDefinition
      */
     public function toArray(): array
     {
+        $this->flushPendingBuilders();
+
         return [
             'name' => $this->name,
             'description' => $this->description,

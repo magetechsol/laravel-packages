@@ -64,13 +64,16 @@ class WorkflowRetryTest extends TestCase
         $order = Order::create(['total' => 100.00, 'status' => 'pending']);
         $instance = $this->manager->start('retry-reset', $order);
 
-        $failedStep = $instance->fresh()->steps()->first();
+        $failedStep = $instance->fresh()->steps()->where('name', 'payment')->first();
         $this->assertSame('failed', $failedStep->status->value);
+        $this->assertSame(1, $failedStep->attempts);
 
         $this->manager->retry($instance->id);
 
-        $retryStep = $instance->fresh()->steps()->first();
-        $this->assertSame('pending', $retryStep->status->value);
+        $retryStep = $instance->fresh()->steps()->where('name', 'payment')->first();
+        $this->assertSame('failed', $retryStep->status->value);
+        $this->assertSame(2, $retryStep->attempts);
+        $this->assertSame(WorkflowStatus::Failed, $instance->fresh()->status);
     }
 
     public function test_retry_creates_transition_log(): void
