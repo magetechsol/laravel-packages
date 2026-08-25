@@ -2,7 +2,7 @@
     "name": "magetech/laravel-saas-tenancy",
     "description": "Multi-tenant architecture for Laravel SaaS applications — shared database or database-per-tenant with zero code changes to switch strategies.",
     "keywords": ["laravel", "saas", "tenancy", "multi-tenant", "multi-tenancy", "tenant", "database", "isolation"],
-    "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/saas-tenancy",
+    "homepage": "https://github.com/magetechsol/laravel-saas-tenancy",
     "license": "MIT",
     "authors": [
         {
