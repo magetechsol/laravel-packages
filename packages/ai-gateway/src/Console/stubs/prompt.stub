@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Ai\Prompts;
+
+class {{ class }}
+{
+    public string $name = '{{ name }}';
+
+    public string $template = <<<'PROMPT'
+Write your prompt template here. Use {{ variable_name }} for dynamic values.
+PROMPT;
+
+    public array $variables = [];
+
+    public ?string $model = null;
+
+    public ?float $temperature = null;
+
+    public ?int $maxTokens = null;
+}

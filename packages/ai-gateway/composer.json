@@ -1,7 +1,7 @@
 {
     "name": "magetech/laravel-ai-gateway",
-    "description": "Production AI infrastructure for Laravel applications.",
-    "keywords": ["laravel", "ai", "openai", "llm", "machine-learning", "gateway"],
+    "description": "Production AI governance layer for Laravel — prompt management, model routing, cost tracking, rate limiting, caching, audit logging, and tenant quotas on top of the official Laravel AI SDK.",
+    "keywords": ["laravel", "ai", "openai", "anthropic", "gemini", "llm", "gateway", "governance", "prompt-management", "cost-tracking"],
     "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/ai-gateway",
     "license": "MIT",
     "authors": [
@@ -10,13 +10,23 @@
             "email": "dev@magetechsolutions.com"
         }
     ],
+    "version": "1.0.0",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/queue": "^11.0|^12.0|^13.0",
         "illuminate/support": "^11.0|^12.0|^13.0"
     },
     "require-dev": {
+        "laravel/pint": "^1.0",
+        "larastan/larastan": "^2.0|^3.0",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.0|^3.0",
         "phpunit/phpunit": "^10.0|^11.0|^12.0"
+    },
+    "suggest": {
+        "laravel/ai": "Required to use the gateway with the official Laravel AI SDK"
     },
     "autoload": {
         "psr-4": {
@@ -32,11 +42,24 @@
         "laravel": {
             "providers": [
                 "MageTech\\AIGateway\\AIGatewayServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "AI": "MageTech\\AIGateway\\Support\\Facades\\AI"
+            }
         }
     },
+    "scripts": {
+        "test": "pest",
+        "test-coverage": "pest --coverage",
+        "format": "pint",
+        "format-test": "pint --test",
+        "analyse": "phpstan analyse"
+    },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true
