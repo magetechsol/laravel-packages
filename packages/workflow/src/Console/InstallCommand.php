@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MageTech\Workflow\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class InstallCommand extends Command
 {
@@ -14,19 +15,18 @@ class InstallCommand extends Command
 
     public function handle(): int
     {
-        $this->publishes([
-            __DIR__ . '/../../config/mts-workflow.php' => config_path('mts-workflow.php'),
-        ], 'mts-workflow-config');
+        Artisan::call('vendor:publish', [
+            '--provider' => \MageTech\Workflow\WorkflowServiceProvider::class,
+            '--tag' => 'mts-workflow-config',
+        ], $this->output);
 
-        $this->publishes([
-            __DIR__ . '/../../database/migrations' => database_path('migrations'),
-        ], 'mts-workflow-migrations');
+        Artisan::call('vendor:publish', [
+            '--provider' => \MageTech\Workflow\WorkflowServiceProvider::class,
+            '--tag' => 'mts-workflow-migrations',
+        ], $this->output);
 
+        $this->info('');
         $this->info('Workflow Engine installed successfully.');
-        $this->line('');
-        $this->line('Published:');
-        $this->line('  - Config: config/mts-workflow.php (tag: mts-workflow-config)');
-        $this->line('  - Migrations: database/migrations/ (tag: mts-workflow-migrations)');
         $this->line('');
         $this->line('Next steps:');
         $this->line('  1. Run: php artisan migrate');
