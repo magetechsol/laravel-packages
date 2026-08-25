@@ -66,6 +66,16 @@ $packages = @(
         testbench = "^8.0|^9.0|^10.0"
         pest = "^2.0|^3.0"
         phpunit = "^10.0|^11.0|^12.0"
+    },
+    @{
+        name = "laravel-devtools"
+        source = "devtools"
+        description = "Local-only Laravel developer dashboard and diagnostic toolkit — application info, performance metrics, security audit, package status, and artisan commands."
+        php = "^8.2"
+        laravel = "^11.0|^12.0|^13.0"
+        testbench = "^8.0|^9.0|^10.0"
+        pest = "^2.0|^3.0"
+        phpunit = "^10.0|^11.0|^12.0"
     }
 )
 
