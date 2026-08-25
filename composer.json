@@ -1,0 +1,27 @@
+{
+    "name": "magetech/laravel-packages",
+    "description": "Official MageTech Laravel packages - production-ready developer tools for modern Laravel applications.",
+    "keywords": ["laravel", "mage tech", "api", "webhooks", "query", "import", "export", "workflow", "saas"],
+    "homepage": "https://github.com/magetechsol/laravel-packages",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "MageTech Solutions",
+            "email": "dev@magetechsolutions.com"
+        }
+    ],
+    "type": "metapackage",
+    "require": {
+        "php": "^8.2",
+        "magetech/laravel-query-toolkit": "^1.0",
+        "magetech/laravel-api-toolkit": "^1.0",
+        "magetech/laravel-webhooks": "^1.0",
+        "magetech/laravel-import-export": "^1.0",
+        "magetech/laravel-workflow": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
