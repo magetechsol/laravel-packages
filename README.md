@@ -108,11 +108,13 @@ Laravel development and application diagnostics toolkit.
 
 ### AI Gateway
 
-Production AI infrastructure for Laravel applications.
+Production AI governance layer — prompt management, model routing, cost tracking, rate limiting, caching, audit logging, and tenant quotas on top of the official Laravel AI SDK.
 
 **Package:** `magetech/laravel-ai-gateway`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/ai-gateway/README.md)
 
 ---
 
