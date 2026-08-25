@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+/build
+/.github
+.vscode
+.idea
+phpunit.xml
+phpunit.xml.dist
+.pint.json
+phpstan.neon.dist
+*.md
+!README.md
+LICENSE
