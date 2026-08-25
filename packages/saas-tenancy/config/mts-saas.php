@@ -123,6 +123,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Database Prefix (Database-Per-Tenant Strategy)
+    |--------------------------------------------------------------------------
+    |
+    | The prefix used for tenant database names when using the 'database' strategy.
+    | Each tenant database will be named: {prefix}_{tenant_id}
+    |
+    */
+
+    'database' => [
+
+        'prefix' => env('MTS_SAAS_DATABASE_PREFIX', 'tenant'),
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | User Tenancy
     |--------------------------------------------------------------------------
     |

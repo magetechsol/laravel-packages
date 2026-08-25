@@ -92,7 +92,9 @@ Multi-tenant architecture for Laravel SaaS applications.
 
 **Package:** `magetech/laravel-saas-tenancy`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/saas-tenancy/README.md)
 
 ---
 

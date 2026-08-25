@@ -15,6 +15,13 @@ use MageTech\SaaS\Contracts\TenantResolverContract;
 use MageTech\SaaS\Database\DatabasePerTenantStrategy;
 use MageTech\SaaS\Database\SharedDatabaseStrategy;
 use MageTech\SaaS\Database\DatabaseStrategyFactory;
+use MageTech\SaaS\Http\Middleware\IdentifyTenant;
+use MageTech\SaaS\Http\Middleware\InitializeTenancy;
+use MageTech\SaaS\Http\Middleware\PreventTenantMixing;
+use MageTech\SaaS\Isolation\TenantCacheManager;
+use MageTech\SaaS\Isolation\TenantNotificationManager;
+use MageTech\SaaS\Isolation\TenantQueueManager;
+use MageTech\SaaS\Isolation\TenantStorageManager;
 use MageTech\SaaS\Support\Facades\Tenant;
 
 class SaaSTenancyServiceProvider extends ServiceProvider
@@ -34,6 +41,7 @@ class SaaSTenancyServiceProvider extends ServiceProvider
     {
         $this->registerPublishing();
         $this->registerCommands();
+        $this->registerMiddleware();
     }
 
     protected function registerHelpers(): void
@@ -77,6 +85,22 @@ class SaaSTenancyServiceProvider extends ServiceProvider
         $this->app->scoped('tenant', function ($app) {
             return $app->make(TenantManager::class);
         });
+
+        $this->app->scoped(TenantCacheManager::class, function ($app) {
+            return new TenantCacheManager($app['config']);
+        });
+
+        $this->app->scoped(TenantQueueManager::class, function ($app) {
+            return new TenantQueueManager($app['config']);
+        });
+
+        $this->app->scoped(TenantStorageManager::class, function ($app) {
+            return new TenantStorageManager($app['config']);
+        });
+
+        $this->app->scoped(TenantNotificationManager::class, function ($app) {
+            return new TenantNotificationManager($app['config']);
+        });
     }
 
     protected function registerPublishing(): void
@@ -106,5 +130,22 @@ class SaaSTenancyServiceProvider extends ServiceProvider
             DeleteTenantCommand::class,
             MigrateTenantCommand::class,
         ]);
+    }
+
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app['router'];
+
+        $router->aliasMiddleware('tenant.identify', IdentifyTenant::class);
+        $router->aliasMiddleware('tenant.initialize', InitializeTenancy::class);
+        $router->aliasMiddleware('tenant.prevent_mixing', PreventTenantMixing::class);
+
+        $router->pushMiddlewareToGroup('tenant.web', IdentifyTenant::class);
+        $router->pushMiddlewareToGroup('tenant.web', InitializeTenancy::class);
+        $router->pushMiddlewareToGroup('tenant.web', PreventTenantMixing::class);
+
+        $router->pushMiddlewareToGroup('tenant.api', IdentifyTenant::class);
+        $router->pushMiddlewareToGroup('tenant.api', InitializeTenancy::class);
+        $router->pushMiddlewareToGroup('tenant.api', PreventTenantMixing::class);
     }
 }

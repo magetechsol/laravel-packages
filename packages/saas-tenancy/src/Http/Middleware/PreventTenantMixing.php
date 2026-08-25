@@ -17,6 +17,12 @@ class PreventTenantMixing
         $tenantId = Tenant::getTenantId();
 
         if ($tenantId) {
+            $requestTenantId = $request->input('_tenant_id') ?? $request->header('X-Tenant-ID');
+
+            if ($requestTenantId && $requestTenantId !== $tenantId) {
+                throw TenantMixingException::detected((string) $tenantId, (string) $requestTenantId);
+            }
+
             $request->merge(['_tenant_id' => $tenantId]);
 
             $response = $next($request);

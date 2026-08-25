@@ -7,6 +7,7 @@ namespace MageTech\SaaS\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use MageTech\SaaS\Events\TenantIdentified;
+use MageTech\SaaS\Exceptions\TenantNotFoundException;
 use MageTech\SaaS\Exceptions\TenantNotIdentifiedException;
 use MageTech\SaaS\Exceptions\TenantSuspendedException;
 use MageTech\SaaS\Support\Facades\Tenant;
@@ -19,11 +20,15 @@ class IdentifyTenant
         $tenant = Tenant::identify();
 
         if ($tenant === null && ! $this->isCentralRoute($request)) {
-            throw TenantNotIdentifiedException::make($request);
+            throw TenantNotFoundException::make($request);
         }
 
         if ($tenant && $tenant->isSuspended()) {
             throw TenantSuspendedException::make($tenant);
+        }
+
+        if ($tenant && $tenant->isDeleted()) {
+            throw TenantNotFoundException::make($request);
         }
 
         return $next($request);

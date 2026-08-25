@@ -66,11 +66,15 @@ if ($tenantUser->hasRole('moderator')) {
 
 ## Middleware
 
-Use the `EnsureUserHasRole` middleware:
+Apply role checks via middleware in your routes:
 
 ```php
-Route::middleware(['ensure-role:admin'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index']);
+Route::middleware(['auth', 'tenant'])->group(function () {
+    Route::get('/admin', function () {
+        if (!auth()->user()->tenantUser?->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+    });
 });
 ```
 

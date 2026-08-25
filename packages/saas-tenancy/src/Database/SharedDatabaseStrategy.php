@@ -93,21 +93,14 @@ class SharedDatabaseStrategy implements DatabaseStrategyContract
 
     protected function applyQueryScope(Tenant $tenant): void
     {
-        $column = $this->config->get('mts-saas.key_column', 'tenant_id');
-        $tenantKey = $tenant->getKey();
-
-        $scopes = $this->config->get('mts-saas.scoped_tables', []);
-
-        foreach ($scopes as $table) {
-            if (Schema::hasTable($table) && Schema::hasColumn($table, $column)) {
-                DB::table($table)->withoutGlobalScopes();
-            }
-        }
+        // Query scoping is handled via Eloquent TenantScope (BelongsToTenant trait).
+        // This method provides a hook for additional raw query scoping if needed.
     }
 
     protected function resetQueryScopes(): void
     {
-        // Reset any active tenant scopes
+        // Query scope reset is handled via Eloquent TenantScope.
+        // This method provides a hook for additional raw query scope cleanup if needed.
     }
 
     protected function deleteTenantData(Tenant $tenant): void

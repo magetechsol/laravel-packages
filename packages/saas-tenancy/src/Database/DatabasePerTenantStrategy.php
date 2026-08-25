@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use MageTech\SaaS\Contracts\DatabaseStrategyContract;
+use MageTech\SaaS\Events\TenantDatabaseReady;
+use MageTech\SaaS\Exceptions\TenantDatabaseException;
 use MageTech\SaaS\Models\Tenant;
 
 class DatabasePerTenantStrategy implements DatabaseStrategyContract
@@ -49,7 +51,7 @@ class DatabasePerTenantStrategy implements DatabaseStrategyContract
 
     public function getDatabaseName(Tenant $tenant): string
     {
-        $prefix = $this->config->get('mts-saas.key_column', 'tenant_id');
+        $prefix = $this->config->get('mts-saas.database.prefix', 'tenant');
 
         return "{$prefix}_{$tenant->getKey()}";
     }
@@ -63,11 +65,15 @@ class DatabasePerTenantStrategy implements DatabaseStrategyContract
         $path = $this->config->get('mts-saas.migrations.path');
 
         if ($path && is_dir($path)) {
-            \Artisan::call('migrate', [
-                '--database' => $this->connection,
-                '--path' => $path,
-                '--force' => true,
-            ]);
+            try {
+                \Artisan::call('migrate', [
+                    '--database' => $this->connection,
+                    '--path' => $path,
+                    '--force' => true,
+                ]);
+            } catch (\Throwable $e) {
+                throw TenantDatabaseException::migrationFailed($tenant->name, $e->getMessage());
+            }
         }
     }
 
@@ -115,21 +121,52 @@ class DatabasePerTenantStrategy implements DatabaseStrategyContract
         $defaultConnection = config('database.default');
         $defaultConfig = config("database.connections.{$defaultConnection}");
 
-        DB::purge('mysql');
+        DB::purge($this->connection);
 
         $charset = $defaultConfig['charset'] ?? 'utf8mb4';
         $collation = $defaultConfig['collation'] ?? 'utf8mb4_unicode_ci';
+        $driver = $defaultConfig['driver'] ?? 'mysql';
 
-        DB::statement("CREATE DATABASE `{$database}` CHARACTER SET {$charset} COLLATE {$collation}");
+        try {
+            $quotedDatabase = $this->quoteIdentifier($database, $driver);
+
+            if ($driver === 'mysql') {
+                DB::statement("CREATE DATABASE {$quotedDatabase} CHARACTER SET {$charset} COLLATE {$collation}");
+            } elseif ($driver === 'pgsql') {
+                DB::statement("CREATE DATABASE {$quotedDatabase} WITH ENCODING 'UTF8'");
+            } else {
+                DB::statement("CREATE DATABASE {$quotedDatabase}");
+            }
+
+            event(new TenantDatabaseReady($tenant, $database));
+        } catch (\Throwable $e) {
+            throw TenantDatabaseException::creationFailed($database, $e->getMessage());
+        }
     }
 
     protected function dropTenantDatabase(Tenant $tenant): void
     {
         $database = $this->getDatabaseName($tenant);
 
-        DB::purge('mysql');
+        DB::purge($this->connection);
 
-        DB::statement("DROP DATABASE IF EXISTS `{$database}`");
+        try {
+            $quotedDatabase = $this->quoteIdentifier($database, config('database.connections.' . config('database.default') . '.driver', 'mysql'));
+
+            DB::statement("DROP DATABASE IF EXISTS {$quotedDatabase}");
+        } catch (\Throwable $e) {
+            throw TenantDatabaseException::creationFailed($database, $e->getMessage());
+        }
+    }
+
+    protected function quoteIdentifier(string $identifier, string $driver): string
+    {
+        return match ($driver) {
+            'mysql' => "`{$identifier}`",
+            'pgsql' => "\"{$identifier}\"",
+            'sqlite' => "\"{$identifier}\"",
+            default => "\"{$identifier}\"",
+        };
     }
 
     protected function ensureTenantConnectionExists(): void

@@ -22,7 +22,7 @@ Multi-tenant SaaS infrastructure for Laravel with tenant isolation, user managem
 
 ```bash
 composer require magepackages/laravel-saas-tenancy
-php package-toolkit:install mts-saas
+php artisan mts:saas:install
 ```
 
 ## Quick Start
@@ -36,7 +36,7 @@ php artisan migrate
 ### 2. Create a Tenant
 
 ```bash
-php artisan package-toolkit:package mts-saas --create-tenant "Acme Corp"
+php artisan mts:saas:create-tenant "Acme Corp"
 ```
 
 ### 3. Identify Tenants

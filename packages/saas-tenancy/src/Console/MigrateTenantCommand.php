@@ -43,7 +43,14 @@ class MigrateTenantCommand extends Command
         $this->info("Migrating tenant: {$tenant->name}");
 
         try {
-            TenantFacade::migrate($tenant);
+            if ($this->option('fresh')) {
+                \Artisan::call('migrate:fresh', [
+                    '--database' => config('mts-saas.migrations.connection', config('database.default')),
+                    '--force' => true,
+                ]);
+            } else {
+                TenantFacade::migrate($tenant);
+            }
 
             $this->info("Tenant [{$tenant->name}] migrated successfully.");
 
