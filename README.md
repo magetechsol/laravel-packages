@@ -60,7 +60,9 @@ Business workflow and approval automation.
 
 **Package:** `magetech/laravel-workflow`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/workflow/README.md)
 
 ---
 
