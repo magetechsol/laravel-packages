@@ -104,7 +104,9 @@ Laravel development and application diagnostics toolkit.
 
 **Package:** `magetech/laravel-devtools`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/devtools/README.md)
 
 ---
 
