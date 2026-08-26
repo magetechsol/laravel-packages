@@ -1,42 +1,68 @@
 {
-    "name": "magetech/laravel-audit-pro",
-    "description": "Enterprise audit trail and compliance logging for Laravel.",
-    "keywords": ["laravel", "audit", "compliance", "logging", "security"],
-    "homepage": "https://github.com/magetechsol/laravel-packages/tree/main/packages/audit-pro",
+    "name": "magetech/laravel-audit",
+    "description": "Enterprise Audit Trails & Compliance Logging for Laravel",
+    "keywords": ["laravel", "audit", "compliance", "logging", "activity", "trail", "security", "enterprise"],
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "MageTech Solutions",
-            "email": "dev@magetechsolutions.com"
+            "email": "info@magetechsol.com",
+            "url": "https://www.magetechsol.com/"
         }
     ],
+    "homepage": "https://www.magetechsol.com/",
+    "support": {
+        "issues": "https://github.com/magetechsol/laravel-audit/issues",
+        "source": "https://github.com/magetechsol/laravel-audit"
+    },
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0|^13.0"
+        "illuminate/auth": "^11.0|^12.0",
+        "illuminate/console": "^11.0|^12.0",
+        "illuminate/container": "^11.0|^12.0",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/events": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "nesbot/carbon": "^3.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
-        "phpunit/phpunit": "^10.0|^11.0|^12.0"
+        "fakerphp/faker": "^1.23",
+        "laravel/pint": "^1.13",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^2.34",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
-            "MageTech\\AuditPro\\": "src"
+            "MageTech\\Audit\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MageTech\\AuditPro\\Tests\\": "tests"
+            "MageTech\\Audit\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "MageTech\\AuditPro\\AuditProServiceProvider"
-            ]
+                "MageTech\\Audit\\AuditServiceProvider"
+            ],
+            "aliases": {
+                "Audit": "MageTech\\Audit\\Facades\\Audit"
+            }
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true
