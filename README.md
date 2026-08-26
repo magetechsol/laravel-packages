@@ -84,7 +84,9 @@ Enterprise audit trail and compliance logging.
 
 **Package:** `magetech/laravel-audit-pro`
 
-**Status:** 📋 Planned
+**Status:** ✅ Stable
+
+[Documentation](packages/audit-pro/README.md)
 
 ---
 
